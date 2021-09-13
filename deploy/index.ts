@@ -6,7 +6,7 @@ function createBucketCDN() {
   const cfIdentity = new aws.cloudfront.OriginAccessIdentity(
     'CloudFrontOriginAccessIdentity'
   );
-  const mainBucket = new aws.s3.Bucket('pd-main-bucket', {
+  const mainBucket = new aws.s3.Bucket('lv-main-bucket', {
     corsRules: [
       {
         allowedOrigins: ['*'],
@@ -41,7 +41,7 @@ function createBucketCDN() {
     policy: s3Policy,
   });
 
-  const distribution = new aws.cloudfront.Distribution('pd-cdn', {
+  const distribution = new aws.cloudfront.Distribution('lv-cdn', {
     enabled: true,
     origins: [
       {
@@ -100,7 +100,7 @@ function createBucketCDN() {
     ],
   });
 
-  const iframeDistribution = new aws.cloudfront.Distribution('pd-iframe', {
+  const iframeDistribution = new aws.cloudfront.Distribution('lv-iframe', {
     enabled: true,
     defaultRootObject: 'index.html',
     origins: [

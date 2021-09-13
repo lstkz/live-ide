@@ -44,4 +44,17 @@ export interface AppConfig {
     clientId: string;
     clientSecret: string;
   };
+  deploy: {
+    cdn: {
+      domainName: string;
+      certArn: string;
+    };
+    iframe: {
+      domainName: string;
+      certArn: string;
+    };
+    zone: {
+      hostedZoneId: string;
+    };
+  };
 }
