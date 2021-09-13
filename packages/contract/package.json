@@ -1,0 +1,11 @@
+{
+  "name": "contract",
+  "version": "0.0.1",
+  "description": "",
+  "scripts": {
+    "jest": "jest"
+  },
+  "author": "Łukasz Sentkiewicz <lukasz@sentkiewicz.pl>",
+  "license": "MIT",
+  "devDependencies": {}
+}

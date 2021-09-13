@@ -1,0 +1,69 @@
+{
+  "name": "app",
+  "version": "0.0.0",
+  "scripts": {
+    "start": "ts-node -T --project ./node.tsconfig.json scripts/start",
+    "start:test": "E2E_TESTS=1 yarn run dev",
+    "dev": "ts-node -T --project ./node.tsconfig.json scripts/dev",
+    "build": "rm -rf ./next && ts-node -T --project ./node.tsconfig.json scripts/build",
+    "test": "yarn run lint && yarn run tsc",
+    "lint": "eslint . --ext .ts"
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@analytics/segment": "^1.1.0",
+    "@bugsnag/plugin-react": "^7.11.0",
+    "@fortawesome/fontawesome-svg-core": "^1.2.32",
+    "@fortawesome/free-brands-svg-icons": "^5.15.2",
+    "@fortawesome/free-regular-svg-icons": "^5.15.1",
+    "@fortawesome/free-solid-svg-icons": "^5.15.1",
+    "@fortawesome/react-fontawesome": "^0.1.12",
+    "@headlessui/react": "^1.3.0",
+    "@heroicons/react": "^1.0.1",
+    "@tailwindcss/forms": "^0.3.3",
+    "@types/node-fetch": "^2.5.11",
+    "@types/react-transition-group": "^4.4.2",
+    "analytics": "^0.7.14",
+    "autoprefixer": "^10.2.5",
+    "babel-plugin-macros": "^3.0.1",
+    "babel-plugin-twin": "^1.0.2",
+    "code-editor": "*",
+    "context-api": "*",
+    "copy-webpack-plugin": "^8.1.1",
+    "detect-browser": "^5.2.0",
+    "next": "11.0.1",
+    "next-transpile-modules": "^8.0.0",
+    "node-fetch": "^2.6.1",
+    "postcss": "^8.2.9",
+    "prettier": "^2.2.1",
+    "react": "17.0.2",
+    "react-dom": "17.0.2",
+    "react-easy-crop": "^3.5.2",
+    "react-hook-form": "^7.0.4",
+    "react-indiana-drag-scroll": "^2.0.1",
+    "react-tooltip": "^4.2.21",
+    "react-transition-group": "^4.4.2",
+    "reconnecting-websocket": "^4.4.0",
+    "remeda": "^0.0.27",
+    "styled-components": "^5.2.3",
+    "tailwindcss": "^2.1.1",
+    "twin.macro": "^2.3.2",
+    "typescript": "4.4.0-dev.20210806",
+    "uuid": "^8.3.2",
+    "webpack": "^5.37.0"
+  },
+  "devDependencies": {
+    "@types/babel__standalone": "^7.1.3",
+    "@types/copy-webpack-plugin": "^8.0.0",
+    "@types/node": "^14.14.37",
+    "@types/react": "^17.0.3",
+    "@types/react-dom": "^17.0.3",
+    "@types/styled-components": "^5.1.9",
+    "@types/uuid": "^8.3.1"
+  },
+  "babelMacros": {
+    "twin": {
+      "preset": "styled-components"
+    }
+  }
+}

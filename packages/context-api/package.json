@@ -1,0 +1,10 @@
+{
+  "name": "context-api",
+  "version": "0.0.2",
+  "scripts": {},
+  "dependencies": {
+    "immer": "^9.0.1"
+  },
+  "license": "MIT",
+  "devDependencies": {}
+}

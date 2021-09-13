@@ -1,0 +1,37 @@
+{
+  "extends": "../../base.tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "lib": [
+      "dom",
+      "DOM.Iterable",
+      "es6",
+      "ES2017.object",
+      "ES2016.Array.Include",
+      "ES2021"
+    ],
+    "noEmit": true,
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "paths": {
+      "context-api": ["../../packages/context-api"],
+      "shared": ["../../packages/shared"]
+    }
+  },
+  "references": [],
+  "include": [
+    "src",
+    "scripts",
+    "jest.config.js",
+    "postcss.config.js",
+    "tailwind.config.js",
+    "__tests__",
+    "next.config.js",
+    "next-env.d.ts",
+    ".eslintrc.js",
+    "default.d.ts"
+  ],
+  "exclude": ["tests", "dist", "build"]
+}

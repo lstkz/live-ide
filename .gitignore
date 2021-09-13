@@ -1,0 +1,49 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+dep-generator/libs
+dep-generator/upload-prod.sh
+dep-generator/upload-stage.sh
+
+apps/api/scripts/stats.ts
+
+# dependencies
+node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# next.js
+apps/app/.next/
+/out/
+
+# production
+build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+*/config/prod.ts
+*/config/dev.ts
+*/config/*.key.txt
+*/config/stage.ts
+
+# vercel
+.vercel
+
+aws-credentials.json
+dynamo-data.json

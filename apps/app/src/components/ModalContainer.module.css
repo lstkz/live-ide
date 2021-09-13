@@ -1,0 +1,21 @@
+.modal-enter {
+  opacity: 0.01;
+}
+
+.modal-enter.modal-enter-active {
+  opacity: 1;
+  transition: opacity 150ms ease-in-out;
+}
+
+.modal-exit {
+  opacity: 1;
+}
+
+.modal-exit.modal-exit-active {
+  opacity: 0.01;
+  transition: opacity 150ms ease-in-out;
+}
+
+.modal-open {
+  @apply overflow-hidden;
+}
