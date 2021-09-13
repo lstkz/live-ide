@@ -12,13 +12,14 @@ export interface BasicPackageInfo {
 }
 
 export async function fetchPackage(name: string) {
-  const res = await fetch(`https://cdn.jsdelivr.net/npm/${name}/package.json`, {
+  const url = `https://cdn.jsdelivr.net/npm/${name}/package.json`;
+  const res = await fetch(url, {
     method: 'get',
     // @ts-ignore
     agent: agent,
   });
   if (res.status !== 200) {
-    throw new Error(`Failed to fetch ${name}. Status: ${res.status}.`);
+    throw new Error(`Failed to fetch "${url}". Status: ${res.status}.`);
   }
   const pkg: BasicPackageInfo = await res.json();
   if (!pkg.dependencies) {

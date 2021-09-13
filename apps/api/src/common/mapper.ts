@@ -1,6 +1,7 @@
 import { UserModel } from '../collections/User';
-import { WorkspaceS3Auth } from '../collections/Workspace';
-import { User, WorkspaceS3Auth as MappedWorkspaceS3Auth } from 'shared';
+import { User } from 'shared';
+import { WorkspaceModel } from '../collections/Workspace';
+import { renameId } from './helper';
 
 export function mapUser(user: UserModel): User {
   return {
@@ -12,11 +13,12 @@ export function mapUser(user: UserModel): User {
   };
 }
 
-export function mapWorkspaceS3Auth(
-  auth: WorkspaceS3Auth
-): MappedWorkspaceS3Auth {
+export function mapWorkspace(workspace: WorkspaceModel) {
   return {
-    bucketName: auth.bucketName,
-    credentials: auth.credentials,
+    id: workspace._id,
+    items: workspace.nodes.map(renameId),
+    libraryUrl: workspace.libraryUrl,
+    libraries: workspace.libraries,
+    accessKey: workspace.accessKey,
   };
 }

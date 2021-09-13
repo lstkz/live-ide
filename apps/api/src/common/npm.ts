@@ -1,5 +1,6 @@
 import fetch from 'cross-fetch';
 import fs from 'fs';
+import * as R from 'remeda';
 import Path from 'path';
 import https from 'https';
 
@@ -13,7 +14,9 @@ export async function fetchNpmTar(name: string, version: string) {
   const diskPath = Path.join(CACHE_DIR, `${name}@${version}`);
   if (!fs.existsSync(diskPath)) {
     const res = await fetch(
-      `https://registry.npmjs.org/${name}/-/${name}-${version}.tgz`,
+      `https://registry.npmjs.org/${name}/-/${R.last(
+        name.split('/')
+      )}-${version}.tgz`,
       {
         method: 'get',
         // @ts-ignore
@@ -25,6 +28,7 @@ export async function fetchNpmTar(name: string, version: string) {
         `Failed to fetch ${name}@${version}. Status: ${res.status}.`
       );
     }
+    fs.mkdirSync(Path.dirname(diskPath), { recursive: true });
     const buffer = Buffer.from(await res.arrayBuffer());
     fs.writeFileSync(diskPath, buffer);
   }

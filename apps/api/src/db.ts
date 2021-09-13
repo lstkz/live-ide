@@ -9,8 +9,9 @@ export const {
   disconnect,
 } = initDb({
   collections: () => [
-    
     require('./collections/Template'),
+    require('./collections/Workspace'),
+    require('./collections/BundleHash'),
     // APPEND
   ],
   uri: config.mongodb.url,

@@ -64,13 +64,6 @@ export type IframeNavigationCallbackMessage =
       payload: { diff: number };
     };
 
-export interface LibraryDefinition {
-  name: string;
-  types?: string;
-  typesBundle?: string;
-  source: string;
-}
-
 export interface AwsCredentials {
   accessKeyId: string;
   secretAccessKey: string;
@@ -91,22 +84,17 @@ export interface NotificationSettings {
 export interface Workspace {
   id: string;
   items: WorkspaceNode[];
-  s3Auth: WorkspaceS3Auth;
-  libraries: LibraryDefinition[];
+  accessKey: string;
+  libraries: string[];
+  libraryUrl: string;
 }
 
 export interface WorkspaceNode {
   id: string;
   name: string;
+  content?: string;
   parentId?: string | null;
-  hash: string;
   type: WorkspaceNodeType;
-  isLocked?: boolean | null;
-}
-
-export interface WorkspaceS3Auth {
-  bucketName: string;
-  credentials: AwsCredentials;
 }
 
 export enum WorkspaceNodeType {

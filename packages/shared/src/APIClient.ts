@@ -1,7 +1,7 @@
 import fetch from 'cross-fetch';
 
 // IMPORTS
-import { AuthData, User } from './types';
+import { AuthData, User, Workspace } from './types';
 // IMPORTS END
 
 export class APIClient {
@@ -21,7 +21,7 @@ export class APIClient {
   template_createTemplate(values: {
     id: string;
     name: string;
-    files: { name: string; content: string }[];
+    files: { name: string; directory: string; content: string }[];
   }): Promise<void> {
     return this.call('template.createTemplate', { values });
   }
@@ -34,8 +34,16 @@ export class APIClient {
   user_logout(): Promise<void> {
     return this.call('user.logout', {});
   }
-  workspace_resolve(libraries: string[]): Promise<Record<string, string>> {
+  workspace_resolve(libraries: string[]): Promise<{ url: string }> {
     return this.call('workspace.resolve', { libraries });
+  }
+  workspace_createWorkspace(values: {
+    templateId: string;
+  }): Promise<Workspace> {
+    return this.call('workspace.createWorkspace', { values });
+  }
+  workspace_getWorkspace(id: string): Promise<Workspace> {
+    return this.call('workspace.getWorkspace', { id });
   }
   // SIGNATURES END
   private async call(name: string, params: any): Promise<any> {

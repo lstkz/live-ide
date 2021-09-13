@@ -1,38 +1,27 @@
 import { ObjectID } from 'mongodb2';
-import { LibraryDefinition } from 'shared';
+import { WorkspaceNodeType } from 'shared';
 import { createCollection } from '../db';
 
-export interface AwsCredentials {
-  accessKeyId: string;
-  secretAccessKey: string;
-  sessionToken: string;
-}
-
-export interface WorkspaceS3Auth {
-  bucketName: string;
-  credentials: AwsCredentials;
-  credentialsExpiresAt: Date;
+export interface WorkspaceNode {
+  _id: string;
+  name: string;
+  content?: string;
+  parentId: string | null;
+  type: WorkspaceNodeType;
 }
 
 export interface WorkspaceModel {
-  _id: ObjectID;
-  userId: ObjectID;
-  challengeId: string;
-  dedupKey?: string;
-  isReady: boolean;
-  s3Auth: WorkspaceS3Auth;
-  libraries: LibraryDefinition[];
+  _id: string;
+  nodes: WorkspaceNode[];
+  accessKey: string;
+  userId?: ObjectID;
+  libraries: string[];
+  libraryUrl: string;
 }
 
 export const WorkspaceCollection = createCollection<WorkspaceModel>(
   'workspace',
   [
-    {
-      key: {
-        userId: 1,
-        challengeId: 1,
-      },
-    },
     {
       key: {
         dedupKey: 1,

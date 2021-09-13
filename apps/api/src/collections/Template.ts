@@ -1,7 +1,8 @@
 import { createCollection } from '../db';
 
-interface TemplateFile {
+export interface TemplateFile {
   name: string;
+  directory: string;
   content: string;
 }
 

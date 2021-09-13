@@ -12,6 +12,7 @@ export const createTemplate = createContract('template.createTemplate')
       files: S.array().items(
         S.object().keys({
           name: S.string(),
+          directory: S.string(),
           content: S.string(),
         })
       ),

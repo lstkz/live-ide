@@ -14,9 +14,9 @@ declare module 'express' {
   }
 }
 
-export type AppTask = { type: 'example' };
+export type AppTask = { type: 'example'; payload: {} };
 
-export type AppEvent = { type: 'example' };
+export type AppEvent = { type: 'example'; payload: {} };
 
 export type AppEventType = ExtractType<Pick<AppEvent, 'type'>>;
 export type AppTaskType = ExtractType<Pick<AppTask, 'type'>>;

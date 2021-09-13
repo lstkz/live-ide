@@ -28,8 +28,10 @@ export function walk(dir: string) {
 function _getFileMap(name: string) {
   const base = Path.join(__dirname, '..', name);
   return walk(base).map(path => {
+    const relative = Path.relative(base, path);
     return {
-      name: Path.relative(base, path),
+      name: Path.basename(relative),
+      directory: Path.dirname(relative),
       content: fs.readFileSync(path, 'utf8'),
     };
   });
