@@ -51,13 +51,8 @@ export class WorkspaceModel {
 
   async init(options: InitWorkspaceOptions) {
     this.options = options;
-    const { defaultOpenFiles, fileHashMap, nodes, readOnly } = options;
-    const tabsState = readOnly
-      ? {
-          activeTabId: null,
-          tabs: [],
-        }
-      : this.editorStateService.loadTabsState();
+    const { defaultOpenFiles, fileHashMap, nodes } = options;
+    const tabsState = this.editorStateService.loadTabsState();
     this.fileHashMap = fileHashMap;
     const nodeMap = R.indexBy(nodes, x => x.id);
     tabsState.tabs = tabsState.tabs.filter(x => nodeMap[x.id]);
@@ -104,7 +99,6 @@ export class WorkspaceModel {
     }
     this.attachEvents();
     this.loadCode();
-    this.setReadOnly(options.readOnly ?? false);
   }
 
   public getModelState() {
@@ -313,9 +307,6 @@ export class WorkspaceModel {
   }
 
   private syncTabs() {
-    if (this.options.readOnly) {
-      return;
-    }
     const { activeTabId, tabs } = this.state;
     this.editorStateService.updateTabsState({
       activeTabId,

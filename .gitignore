@@ -1,10 +1,10 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-dep-generator/libs
-dep-generator/upload-prod.sh
-dep-generator/upload-stage.sh
+templates/deploy-local.sh
+templates/deploy-prod.sh
 
-apps/api/scripts/stats.ts
+.npm-cache/*
+!.npm-cache/.gitkeep
 
 # dependencies
 node_modules

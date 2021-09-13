@@ -159,7 +159,6 @@ export interface InitWorkspaceOptions {
   workspaceId: string;
   nodes: TreeNode[];
   fileHashMap: Map<string, string>;
-  readOnly?: boolean;
 }
 
 export interface InitReadOnlyWorkspaceOptions {

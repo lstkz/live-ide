@@ -10,6 +10,7 @@ export const {
 } = initDb({
   collections: () => [
     
+    require('./collections/Template'),
     // APPEND
   ],
   uri: config.mongodb.url,

@@ -95,12 +95,6 @@ export interface Workspace {
   libraries: LibraryDefinition[];
 }
 
-export interface ReadOnlyWorkspace {
-  id: string;
-  items: WorkspaceNode[];
-  libraries: LibraryDefinition[];
-}
-
 export interface WorkspaceNode {
   id: string;
   name: string;
@@ -109,8 +103,6 @@ export interface WorkspaceNode {
   type: WorkspaceNodeType;
   isLocked?: boolean | null;
 }
-
-export interface ReadOnlyWorkspace {}
 
 export interface WorkspaceS3Auth {
   bucketName: string;

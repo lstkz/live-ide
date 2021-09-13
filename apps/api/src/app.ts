@@ -39,7 +39,7 @@ Promise.all([connect(), ampq.connect(['publish', 'socket'])])
       })
     );
     const uniqId = Math.floor(Math.random() * 1000);
-    const ping = `Practice.dev API 💪 (${uniqId})`;
+    const ping = `Live IDE API 💪 (${uniqId})`;
     app.get('/', (req, res) => {
       res.send(ping);
       res.end();

@@ -1,7 +1,7 @@
 import fetch from 'cross-fetch';
 
 // IMPORTS
-import { User } from './types';
+import { AuthData, User } from './types';
 // IMPORTS END
 
 export class APIClient {
@@ -18,12 +18,24 @@ export class APIClient {
   }
 
   // SIGNATURES
-
+  template_createTemplate(values: {
+    id: string;
+    name: string;
+    files: { name: string; content: string }[];
+  }): Promise<void> {
+    return this.call('template.createTemplate', { values });
+  }
+  user_authGithub(code: string): Promise<AuthData> {
+    return this.call('user.authGithub', { code });
+  }
   user_getMe(): Promise<User> {
     return this.call('user.getMe', {});
   }
   user_logout(): Promise<void> {
     return this.call('user.logout', {});
+  }
+  workspace_resolve(libraries: string[]): Promise<Record<string, string>> {
+    return this.call('workspace.resolve', { libraries });
   }
   // SIGNATURES END
   private async call(name: string, params: any): Promise<any> {

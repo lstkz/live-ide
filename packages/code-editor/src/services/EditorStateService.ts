@@ -9,10 +9,10 @@ export interface TabsState {
 }
 
 export class EditorStateService {
-  constructor(private challengeId: string) {}
+  constructor(private workspaceId: string) {}
 
   private getTabsStateKey() {
-    return `challenge_tabs_state_${this.challengeId}`;
+    return `lv_workspace_tabs_state_${this.workspaceId}`;
   }
 
   updateTabsState(state: TabsState) {
