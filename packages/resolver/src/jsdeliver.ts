@@ -8,7 +8,7 @@ const agent = new https.Agent({
 export interface BasicPackageInfo {
   name: string;
   version: string;
-  module: string;
+  module?: string;
   dependencies: Record<string, string>;
 }
 
@@ -19,6 +19,9 @@ export async function fetchPackage(name: string) {
     // @ts-ignore
     agent: agent,
   });
+  if (res.status === 404) {
+    return null;
+  }
   if (res.status !== 200) {
     throw new Error(`Failed to fetch "${url}". Status: ${res.status}.`);
   }

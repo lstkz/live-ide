@@ -25,7 +25,7 @@ interface BaseNode {
 
 export interface FileNode extends BaseNode {
   type: 'file';
-  contentUrl?: string;
+  content?: string;
 }
 
 export interface DirectoryNode extends BaseNode {
@@ -105,6 +105,7 @@ export interface BundlerAction {
   payload: {
     input: string;
     modules: Record<string, SourceCode>;
+    libraryUrl: string;
     version: number;
   };
 }
@@ -139,12 +140,9 @@ export interface UpdateWorkspaceNodeInput {
   id: string;
   name?: string | null;
   parentId?: string | null;
-  hash?: string | null;
 }
 
 export interface IAPIService {
-  getFileContent(contentUrl: string, hash?: string): Promise<string>;
-
   addNode(values: CreateWorkspaceNodeInput): Promise<void>;
 
   deleteNode(nodeId: string): Promise<void>;
@@ -158,7 +156,7 @@ export interface InitWorkspaceOptions {
   defaultOpenFiles: string[];
   workspaceId: string;
   nodes: TreeNode[];
-  fileHashMap: Map<string, string>;
+  libraryUrl: string;
 }
 
 export interface InitReadOnlyWorkspaceOptions {

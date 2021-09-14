@@ -63,6 +63,21 @@ export class ModelCollection {
     });
   }
 
+  async addLibraryUrl(libraryUrl: string) {
+    const deps: Record<string, string> = await (await fetch(libraryUrl)).json();
+    Object.keys(deps)
+      .filter(file => file.endsWith('.d.ts'))
+      .forEach(file => {
+        const mappedName = file.replace('@types/', '');
+        const lib = this.monaco.editor.createModel(
+          deps[file],
+          'typescript',
+          this.monaco.Uri.parse(`file:///node_modules/${mappedName}`)
+        );
+        this.libs.push(lib);
+      });
+  }
+
   addFile(file: EditorFile) {
     const codeModel = new CodeModel(
       this.monaco,

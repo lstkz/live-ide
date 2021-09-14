@@ -11,10 +11,9 @@ import {
   EditorFactory,
   EditorCreator,
 } from 'code-editor';
-import { CDN_BASE_URL, IFRAME_ORIGIN } from 'src/config';
+import { IFRAME_ORIGIN } from 'src/config';
 import { Workspace, WorkspaceNode, WorkspaceNodeType } from 'shared';
 import { MonacoLoader } from './MonacoLoader';
-import { useS3Refresh } from './useS3Refresh';
 
 interface Actions {
   load: (container: HTMLDivElement) => void;
@@ -40,7 +39,7 @@ interface EditorModuleProps {
 
 function useServices(workspace: Workspace) {
   return React.useMemo(() => {
-    const apiService = new APIService(workspace.id, workspace.s3Auth);
+    const apiService = new APIService(workspace.id);
     const editorStateService = new EditorStateService(workspace.id);
     const browserPreviewService = new BrowserPreviewService(IFRAME_ORIGIN);
     const creator = new EditorCreator(
@@ -76,7 +75,7 @@ function mapWorkspaceNodes(id: string, nodes: WorkspaceNode[]) {
         id: node.id,
         name: node.name,
         parentId: node.parentId,
-        contentUrl: `${CDN_BASE_URL}/workspace/${id}/${node.id}`,
+        content: node.content,
       };
     }
   });
@@ -85,14 +84,6 @@ function mapWorkspaceNodes(id: string, nodes: WorkspaceNode[]) {
 
 export interface EditorModuleRef {
   openNewWorkspace: (newWorkspace: Workspace) => void;
-}
-
-function _getFileHashMap(workspace: Workspace) {
-  const fileHashMap = new Map<string, string>();
-  workspace.items.forEach(item => {
-    fileHashMap.set(item.id, item.hash);
-  });
-  return fileHashMap;
 }
 
 export const EditorModule = React.forwardRef<
@@ -108,13 +99,8 @@ export const EditorModule = React.forwardRef<
     },
     'EditorModule'
   );
-  const {
-    editorFactory,
-    monacoLoader,
-    apiService,
-    browserPreviewService,
-    creator,
-  } = useServices(props.workspace);
+  const { editorFactory, monacoLoader, browserPreviewService, creator } =
+    useServices(props.workspace);
   const { workspaceModel, themeService } = creator;
   const loadedDefer = React.useMemo(() => {
     let resolve: () => void = null!;
@@ -136,9 +122,9 @@ export const EditorModule = React.forwardRef<
     return workspaceModel.init({
       // defaultOpenFiles: ['./App.tsx'],
       defaultOpenFiles: [],
-      fileHashMap: _getFileHashMap(workspace),
       nodes: mapWorkspaceNodes(workspace.id, workspace.items),
       workspaceId: workspace.id,
+      libraryUrl: workspace.libraryUrl,
     });
   };
 
@@ -153,20 +139,10 @@ export const EditorModule = React.forwardRef<
       editorFactory.init(monaco, container);
       themeService.init();
       creator.init(monaco, editorFactory.create());
-      await Promise.all(
-        workspace.libraries
-          .filter(lib => lib.types || lib.typesBundle)
-          .map(lib => {
-            return lib.types
-              ? creator.modelCollection.addLib(lib.name, lib.types!)
-              : creator.modelCollection.addLibBundle(
-                  lib.name,
-                  lib.typesBundle!
-                );
-          })
-      );
+      await creator.modelCollection.addLibraryUrl(workspace.libraryUrl);
+
       await browserPreviewService.waitForLoad();
-      browserPreviewService.setLibraries(workspace.libraries);
+      // browserPreviewService.setLibraries(workspace.libraries);
       await initWorkspace(workspace);
       setState(draft => {
         draft.isLoaded = true;
@@ -184,7 +160,6 @@ export const EditorModule = React.forwardRef<
       creator.dispose();
     };
   }, []);
-  useS3Refresh(state.workspace?.id, apiService);
   return (
     <Provider
       state={{

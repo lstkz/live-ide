@@ -1,4 +1,9 @@
 import * as Babel from '@babel/standalone';
+import Path from 'path';
+import replace from '@rollup/plugin-replace';
+import commonjs from '@rollup/plugin-commonjs';
+import transformCommonjs from 'babel-plugin-transform-commonjs';
+
 import { OutputAsset, OutputChunk, RenderedModule, rollup } from 'rollup';
 import { BundlerAction, BundlerCallbackAction, SourceCode } from '../types';
 
@@ -11,6 +16,7 @@ function sendMessage(action: BundlerCallbackAction) {
 interface BuildSourceCodeOptions {
   input: string;
   modules: Record<string, SourceCode>;
+  libraryUrl: string;
 }
 
 function _getRelativePath(target: string, parent: string) {
@@ -28,8 +34,14 @@ function _getRelativePath(target: string, parent: string) {
   return ['.', ...base].join('/');
 }
 
+const libraryCache: Record<string, Promise<Record<string, string>>> = {};
+
 async function buildSourceCode(options: BuildSourceCodeOptions) {
-  const { input, modules } = options;
+  const { input, modules, libraryUrl } = options;
+  if (!libraryCache[libraryUrl]) {
+    libraryCache[libraryUrl] = fetch(libraryUrl).then(x => x.json());
+  }
+  const library = await libraryCache[libraryUrl];
 
   const extensions = ['.ts', '.tsx', '.js', '.jsx'];
   const styles: Record<string, string> = {};
@@ -70,11 +82,34 @@ async function buildSourceCode(options: BuildSourceCodeOptions) {
           });
         },
       },
+      replace({
+        preventAssignment: true,
+        values: {
+          'process.env.NODE_ENV': JSON.stringify('development'),
+        },
+      }),
       {
         name: 'test',
         resolveId(target, parent) {
           if (target[0] !== '.') {
-            return false;
+            const file = library[target];
+            if (file) {
+              return target;
+            }
+            const pkgPlain = library[file + '/package.json'];
+            if (pkgPlain) {
+              const pkg = JSON.parse(pkgPlain);
+              if (!pkg.main) {
+                throw new Error('main entry missing for ' + file);
+              }
+              return Path.join(target, pkg.main);
+            }
+            const indexPath = target + '/index.js';
+            const indexFile = library[indexPath];
+            if (indexFile) {
+              return indexPath;
+            }
+            throw new Error('Cannot resolve ' + target);
           }
           let path = _getRelativePath(target, parent ?? '');
           for (const ext of extensions) {
@@ -86,6 +121,9 @@ async function buildSourceCode(options: BuildSourceCodeOptions) {
           return path;
         },
         load: function (id) {
+          if (library[id]) {
+            return library[id];
+          }
           if (!modules[id]) {
             throw new Error('Module not found: ' + id);
           }
@@ -102,6 +140,7 @@ async function buildSourceCode(options: BuildSourceCodeOptions) {
           return Babel.transform(code, {
             filename,
             presets,
+            plugins: [transformCommonjs()],
           }) as any;
         },
       },
@@ -111,10 +150,10 @@ async function buildSourceCode(options: BuildSourceCodeOptions) {
 
 self.addEventListener('message', async event => {
   const action = event.data as BundlerAction;
-  const { input, version, modules } = action.payload;
+  const { input, version, modules, libraryUrl } = action.payload;
 
   try {
-    const build = await buildSourceCode({ input, modules });
+    const build = await buildSourceCode({ input, modules, libraryUrl });
     const { output } = await build.generate({
       sourcemap: 'inline',
       inlineDynamicImports: true,

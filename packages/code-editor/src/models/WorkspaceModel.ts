@@ -34,8 +34,8 @@ const TODO_INPUT_FILE = './index.tsx';
 
 export class WorkspaceModel {
   private modelState: ModelState<WorkspaceState> = null!;
-  private fileHashMap: Map<string, string> = new Map();
   private options: InitWorkspaceOptions = null!;
+  private libraryUrl: string = null!;
   private hasAttachedEvents = false;
 
   constructor(
@@ -51,9 +51,9 @@ export class WorkspaceModel {
 
   async init(options: InitWorkspaceOptions) {
     this.options = options;
-    const { defaultOpenFiles, fileHashMap, nodes } = options;
+    this.libraryUrl = options.libraryUrl;
+    const { defaultOpenFiles, nodes } = options;
     const tabsState = this.editorStateService.loadTabsState();
-    this.fileHashMap = fileHashMap;
     const nodeMap = R.indexBy(nodes, x => x.id);
     tabsState.tabs = tabsState.tabs.filter(x => nodeMap[x.id]);
     if (tabsState.activeTabId && !nodeMap[tabsState.activeTabId]) {
@@ -86,10 +86,7 @@ export class WorkspaceModel {
           return {
             id: node.id,
             path: pathHelper.getPath(node.id),
-            source: await this.apiService.getFileContent(
-              node.contentUrl!,
-              this.fileHashMap.get(node.id)
-            ),
+            source: node.content!,
           };
         })
     );
@@ -196,7 +193,6 @@ export class WorkspaceModel {
   addNew(newNode: TreeNode) {
     const nodeId = newNode.id;
     const hash = randomHash();
-    this.fileHashMap.set(nodeId, hash);
     void this.apiService.addNode({
       ...newNode,
       workspaceId: this.options.workspaceId,
@@ -250,13 +246,10 @@ export class WorkspaceModel {
       this.setState(draft => {
         delete draft.dirtyMap[fileId];
       });
-      const newHash = randomHash();
       void this.apiService.updateNode({
         id: fileId,
         content,
-        hash: newHash,
       });
-      this.fileHashMap.set(fileId, newHash);
       this.loadCode();
     });
     this.emitter.addEventListener('opened', ({ fileId }) => {
@@ -303,6 +296,7 @@ export class WorkspaceModel {
     return {
       fileMap: this.modelCollection.getFileMap(),
       inputFile: TODO_INPUT_FILE,
+      libraryUrl: this.libraryUrl,
     };
   }
 

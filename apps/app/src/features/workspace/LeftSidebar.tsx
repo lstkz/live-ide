@@ -2,12 +2,10 @@ import React from 'react';
 import { ChallengeSidebar } from './ChallengeSidebar';
 import { faCopy } from '@fortawesome/free-solid-svg-icons';
 import { useWorkspaceActions, useWorkspaceState } from './WorkspaceModule';
-import { useUser } from '../AuthModule';
 
 export function LeftSidebar() {
   const { setLeftSidebarTab } = useWorkspaceActions();
   const { leftSidebarTab } = useWorkspaceState();
-  const user = useUser();
   return (
     <ChallengeSidebar
       tooltipPlace="right"
@@ -19,7 +17,7 @@ export function LeftSidebar() {
         }
       }}
       items={[
-        user && {
+        {
           name: 'file-explorer',
           label: 'File Explorer',
           fa: faCopy,

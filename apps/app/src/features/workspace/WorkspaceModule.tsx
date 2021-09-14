@@ -2,7 +2,7 @@ import React from 'react';
 import { InferGetServerSidePropsType } from 'next';
 import { useImmer, createModuleContext, useActions } from 'context-api';
 import { WorkspacePage } from './WorkspacePage';
-import { createGetServerSideProps } from '../../common/helper';
+import { createGetServerSideProps, createSSRClient } from '../../common/helper';
 import { readCookieFromString } from '../../common/cookie';
 import {
   LEFT_COOKIE_NAME,
@@ -94,19 +94,9 @@ export const getServerSideProps = createGetServerSideProps(async ctx => {
   };
   const initialLeftSidebar = getCookieNum(LEFT_COOKIE_NAME, LEFT_DEFAULT);
   const initialRightSidebar = getCookieNum(RIGHT_COOKIE_NAME, RIGHT_DEFAULT);
-  const workspace: Workspace = {
-    id: '123',
-    items: [],
-    libraries: [],
-    s3Auth: {
-      bucketName: '',
-      credentials: {
-        accessKeyId: '',
-        secretAccessKey: '',
-        sessionToken: '',
-      },
-    },
-  };
+  const api = createSSRClient(ctx);
+  const id = ctx.query.id as string;
+  const workspace = await api.workspace_getWorkspace(id);
   return {
     props: {
       workspace,

@@ -9,6 +9,7 @@ import { BrowserPreviewService } from './BrowserPreviewService';
 export interface BundleOptions {
   input: string;
   modules: Record<string, SourceCode>;
+  libraryUrl: string;
 }
 
 interface CallbackDefer {
@@ -18,6 +19,7 @@ interface CallbackDefer {
 
 interface LoadCodeOptions {
   inputFile: string;
+  libraryUrl: string;
   fileMap: Record<
     string,
     {
@@ -95,10 +97,11 @@ export class BundlerService {
   }
 
   async loadCodeAsync(options: LoadCodeOptions) {
-    const { fileMap, inputFile } = options;
+    const { fileMap, inputFile, libraryUrl } = options;
     const code = await this.bundle({
       input: inputFile,
       modules: fileMap,
+      libraryUrl,
     });
     await this.browserPreviewService.inject(code);
     return code;
