@@ -1,9 +1,14 @@
 import * as Path from 'path';
 import { rollup } from 'rollup';
+import commonjs from '@rollup/plugin-commonjs';
+import resolve from '@rollup/plugin-node-resolve';
 import { findPackage } from './utils';
+import { BaseLibraryInfo } from './types';
 
 export class DependencyResolver {
-  private resolvedDeps = new Set<string>();
+  private visitedDeps = new Set<string>();
+  private resolvedDeps = new Set<BaseLibraryInfo>();
+  private externalDeps = new Set<string>();
 
   constructor(private baseSourceDir: string) {}
 
@@ -12,19 +17,31 @@ export class DependencyResolver {
   }
 
   getDeps() {
-    return [...this.resolvedDeps.values()];
+    return [...this.resolvedDeps.values()]
+      .filter(x => !this.externalDeps.has(x.name))
+      .sort((a, b) => a.name.localeCompare(b.name));
   }
 
   private async findAllDeps(lib: string) {
-    if (this.resolvedDeps.has(lib)) {
+    if (this.visitedDeps.has(lib)) {
       return;
     }
-    this.resolvedDeps.add(lib);
-    const { pkg, pkgPath } = findPackage(this.baseSourceDir, lib);
-    if (!pkg.module) {
-      throw new Error(`Package ${lib} has no module entry.`);
+    this.visitedDeps.add(lib);
+    const pkgData = findPackage(this.baseSourceDir, lib);
+    if (!pkgData) {
+      this.externalDeps.add(lib);
+      // external
+      return;
     }
-    const input = Path.join(Path.dirname(pkgPath), pkg.module);
+    const { pkg } = pkgData;
+    this.resolvedDeps.add({
+      name: lib,
+      version: pkg.version,
+    });
+    const isModule = Boolean(pkg.module);
+    const input = isModule
+      ? Path.join(this.baseSourceDir, lib, pkg.module)
+      : Path.join(this.baseSourceDir, lib);
     const newDeps: string[] = [];
     await rollup({
       input: input,
@@ -36,7 +53,7 @@ export class DependencyResolver {
               return null;
             }
             if (/^[@a-zA-Z0-9]/.test(target)) {
-              if (!this.resolvedDeps.has(target)) {
+              if (!this.visitedDeps.has(target)) {
                 newDeps.push(target);
               }
               return false;
@@ -44,6 +61,7 @@ export class DependencyResolver {
             return null;
           },
         },
+        ...(isModule ? [] : [resolve(), commonjs()]),
       ],
     });
     await Promise.all(newDeps.map(dep => this.findAllDeps(dep)));

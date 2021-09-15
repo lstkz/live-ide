@@ -1,6 +1,5 @@
 export interface ResolvedPackage {
   name: string;
-  sourceName: string;
   version: string;
   requestedVersion: string;
 }

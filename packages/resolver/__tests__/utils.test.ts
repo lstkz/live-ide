@@ -1,5 +1,4 @@
 import {
-  convertToEsmBundleName,
   extractLibName,
   removePackageVersion,
   splitVersion,
@@ -13,17 +12,6 @@ describe('removePackageVersion', () => {
     ['@types/react@1.2.3', '@types/react'],
   ])('%j', (input, expected) => {
     expect(removePackageVersion(input)).toEqual(expected);
-  });
-});
-
-describe('convertToEsmBundleName', () => {
-  it.each([
-    ['react', '@esm-bundle/react'],
-    ['react@1.2.3', '@esm-bundle/react@1.2.3'],
-    ['@types/react', '@esm-bundle/types__react'],
-    ['@types/react@1.2.3', '@esm-bundle/types__react@1.2.3'],
-  ])('%j', (input, expected) => {
-    expect(convertToEsmBundleName(input)).toEqual(expected);
   });
 });
 

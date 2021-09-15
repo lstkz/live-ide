@@ -28,7 +28,6 @@ Array [
   Object {
     "name": "foo",
     "requestedVersion": "*",
-    "sourceName": "foo",
     "version": "1.0.0",
   },
 ]
@@ -86,25 +85,21 @@ Array [
   Object {
     "name": "foo",
     "requestedVersion": "*",
-    "sourceName": "foo",
     "version": "1.0.0",
   },
   Object {
     "name": "sub1",
     "requestedVersion": "1.0.0",
-    "sourceName": "sub1",
     "version": "1.0.0",
   },
   Object {
     "name": "sub2",
     "requestedVersion": "2.3.4",
-    "sourceName": "sub2",
     "version": "2.3.4",
   },
   Object {
     "name": "sub3",
     "requestedVersion": "2.0.0",
-    "sourceName": "sub3",
     "version": "2.0.0",
   },
 ]
@@ -156,97 +151,16 @@ Array [
   Object {
     "name": "bar",
     "requestedVersion": "1.0.0",
-    "sourceName": "bar",
     "version": "1.0.0",
   },
   Object {
     "name": "baz",
     "requestedVersion": "1.0.0",
-    "sourceName": "baz",
     "version": "1.0.0",
   },
   Object {
     "name": "foo",
     "requestedVersion": "*",
-    "sourceName": "foo",
-    "version": "1.0.0",
-  },
-]
-`);
-});
-
-it('should return an esm proxy package', async () => {
-  const resolver = new PackageFetcher();
-  mocked_fetchPackage.mockImplementation(async name => {
-    switch (name) {
-      case 'foo@*': {
-        return {
-          name: 'foo',
-          version: '1.0.0',
-          dependencies: {
-            bar: '1.0.0',
-          },
-        } as BasicPackageInfo;
-      }
-      case '@esm-bundle/foo@1.0.0': {
-        return {
-          name: '@esm-bundle/foo',
-          version: '1.0.0',
-          module: 'index.esm.js',
-          dependencies: {},
-        };
-      }
-
-      default:
-        return null;
-    }
-  });
-  await resolver.fetch('foo');
-  expect(resolver.getPackages()).toMatchInlineSnapshot(`
-Array [
-  Object {
-    "name": "@esm-bundle/foo",
-    "requestedVersion": "1.0.0",
-    "sourceName": "foo",
-    "version": "1.0.0",
-  },
-]
-`);
-});
-
-it('should return an esm proxy package (scoped)', async () => {
-  const resolver = new PackageFetcher();
-  mocked_fetchPackage.mockImplementation(async name => {
-    switch (name) {
-      case '@types/foo@*': {
-        return {
-          name: '@types/foo',
-          version: '1.0.0',
-          dependencies: {
-            bar: '1.0.0',
-          },
-        } as BasicPackageInfo;
-      }
-      case '@esm-bundle/types__foo@1.0.0': {
-        return {
-          name: '@esm-bundle/types__foo',
-          version: '1.0.0',
-          module: 'index.esm.js',
-          dependencies: {},
-        };
-      }
-
-      default:
-        return null;
-    }
-  });
-  await resolver.fetch('@types/foo');
-  expect(resolver.getPackages()).toMatchInlineSnapshot(`
-Array [
-  Object {
-    "name": "@esm-bundle/types__foo",
-    "requestedVersion": "1.0.0",
-    "sourceName": "@types/foo",
     "version": "1.0.0",
   },
 ]
@@ -262,62 +176,5 @@ it('should throw if not found', async () => {
     resolver.fetch('@types/foo')
   ).rejects.toThrowErrorMatchingInlineSnapshot(
     `"Package @types/foo@* not found."`
-  );
-});
-
-it('should throw if not es module', async () => {
-  const resolver = new PackageFetcher();
-  mocked_fetchPackage.mockImplementation(async name => {
-    switch (name) {
-      case 'foo@*': {
-        return {
-          name: 'foo',
-          version: '1.0.0',
-          dependencies: {
-            bar: '1.0.0',
-          },
-        } as BasicPackageInfo;
-      }
-      default:
-        return null;
-    }
-  });
-  await expect(
-    resolver.fetch('foo')
-  ).rejects.toThrowErrorMatchingInlineSnapshot(
-    `"Package foo@1.0.0 is not an ES module."`
-  );
-});
-
-it('should throw if not @esm-bundle has no module prop', async () => {
-  const resolver = new PackageFetcher();
-  mocked_fetchPackage.mockImplementation(async name => {
-    switch (name) {
-      case 'foo@*': {
-        return {
-          name: 'foo',
-          version: '1.0.0',
-          dependencies: {
-            bar: '1.0.0',
-          },
-        } as BasicPackageInfo;
-      }
-      case '@esm-bundle/foo@1.0.0': {
-        return {
-          name: '@esm-bundle/foo',
-          version: '1.0.0',
-          dependencies: {
-            bar: '1.0.0',
-          },
-        } as BasicPackageInfo;
-      }
-      default:
-        return null;
-    }
-  });
-  await expect(
-    resolver.fetch('foo')
-  ).rejects.toThrowErrorMatchingInlineSnapshot(
-    `"Expected @esm-bundle/foo@1.0.0 to have a module property"`
   );
 });

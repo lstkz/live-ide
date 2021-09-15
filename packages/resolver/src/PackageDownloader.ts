@@ -11,11 +11,14 @@ interface DownloadPackageData {
 }
 
 export class PackageDownloader {
-  private dir: tmp.DirResult;
+  private dirHandle: tmp.DirResult;
   private downloaded = new Set<string>();
+  private dir: string;
 
   constructor() {
-    this.dir = tmp.dirSync();
+    this.dirHandle = tmp.dirSync();
+    this.dir = Path.join(this.dirHandle.name, 'node_modules');
+    fs.mkdirSync(this.dir);
   }
 
   async download(pkg: DownloadPackageData) {
@@ -24,7 +27,7 @@ export class PackageDownloader {
     }
     this.downloaded.add(pkg.name);
     const tarPath = await fetchNpmTar(pkg.name, pkg.version);
-    const cwd = Path.join(this.dir.name, pkg.name);
+    const cwd = Path.join(this.dir, pkg.name);
     fs.mkdirSync(cwd, { recursive: true });
     await tar.x({
       file: tarPath,
@@ -52,10 +55,10 @@ export class PackageDownloader {
   }
 
   getDir() {
-    return this.dir.name;
+    return this.dir;
   }
 
   dispose() {
-    this.dir.removeCallback();
+    this.dirHandle.removeCallback();
   }
 }

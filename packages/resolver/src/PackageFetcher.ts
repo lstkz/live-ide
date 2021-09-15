@@ -1,7 +1,7 @@
 import { fetchPackage } from './jsdeliver';
 import { ResolverError } from './ResolverError';
 import { ResolvedPackage } from './types';
-import { convertToEsmBundleName, splitVersion } from './utils';
+import { splitVersion } from './utils';
 import semver from 'semver';
 
 export class PackageFetcher {
@@ -10,16 +10,10 @@ export class PackageFetcher {
 
   async fetch(fullName: string) {
     const { name, version } = splitVersion(fullName);
-    return this._fetch(name, version, name, false);
+    return this._fetch(name, version);
   }
 
-  private async _fetch(
-    name: string,
-    version: string,
-    sourceName: string,
-    isESMProxy = false
-  ): Promise<void> {
-    console.log('fetch', { name, version, sourceName, isESMProxy });
+  private async _fetch(name: string, version: string): Promise<void> {
     if (this.visited[name]) {
       return;
     }
@@ -27,25 +21,11 @@ export class PackageFetcher {
     const fullName = name + '@' + version;
     const pkg = await fetchPackage(fullName);
     if (!pkg) {
-      if (isESMProxy) {
-        throw new ResolverError(
-          `Package ${sourceName}@${version} is not an ES module.`
-        );
-      }
       throw new ResolverError(`Package ${fullName} not found.`);
-    }
-    if (!pkg.module && !pkg.exports) {
-      if (isESMProxy) {
-        throw new ResolverError(
-          `Expected ${fullName} to have a module property`
-        );
-      }
-      return this._fetch(convertToEsmBundleName(name), pkg.version, name, true);
     }
     const existing = this.pkgMap[pkg.name];
     if (!existing || semver.lt(existing.version, pkg.version)) {
-      this.pkgMap[sourceName] = {
-        sourceName,
+      this.pkgMap[name] = {
         name,
         version: pkg.version,
         requestedVersion: version,

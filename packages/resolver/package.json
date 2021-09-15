@@ -9,7 +9,10 @@
   "license": "MIT",
   "devDependencies": {},
   "dependencies": {
+    "@rollup/plugin-node-resolve": "^13.0.4",
+    "@rollup/plugin-virtual": "^2.0.3",
     "@types/mv": "^2.1.2",
+    "@types/rollup__plugin-virtual": "^2.0.1",
     "mv": "^2.1.1"
   }
 }

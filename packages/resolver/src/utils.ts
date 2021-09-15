@@ -10,13 +10,6 @@ export function removePackageVersion(name: string) {
   return name.substring(0, idx);
 }
 
-export function convertToEsmBundleName(name: string) {
-  if (name[0] === '@') {
-    return '@esm-bundle/' + name.substring(1).replace('/', '__');
-  }
-  return '@esm-bundle/' + name;
-}
-
 export function splitVersion(name: string) {
   const idx = name.lastIndexOf('@');
   if (idx <= 0) {
@@ -31,7 +24,7 @@ export function findPackage(baseDir: string, lib: string) {
     path = Path.join(baseDir, extractLibName(lib), 'package.json');
   }
   if (!fs.existsSync(path)) {
-    throw new Error('Cannot find package.json for ' + lib);
+    return null;
   }
   return {
     pkgPath: path,
@@ -51,4 +44,28 @@ export function extractLibName(path: string) {
 
 export function getHash(content: string) {
   return md5(content).substring(0, 10);
+}
+
+export function snake2Pascal(input: string) {
+  const arr = input.split('-');
+  for (let i = 0; i < arr.length; i++) {
+    arr[i] = arr[i].slice(0, 1).toUpperCase() + arr[i].slice(1, arr[i].length);
+  }
+  return arr.join('');
+}
+
+export function readCommonJsPath(path: string) {
+  for (const ext of ['', '.js']) {
+    const targetPath = path + ext;
+    if (fs.existsSync(targetPath) && fs.statSync(targetPath).isFile()) {
+      return fs.readFileSync(targetPath, 'utf8');
+    }
+  }
+  const pkgPath = Path.join(path, 'package.json');
+  if (!fs.existsSync(pkgPath)) {
+    throw new Error('Cannot resolve commonjs path ' + path);
+  }
+  const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+  const entry = Path.join(path, pkg.main ?? 'index.js');
+  return fs.readFileSync(entry, 'utf8');
 }

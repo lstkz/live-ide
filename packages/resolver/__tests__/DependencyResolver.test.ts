@@ -30,7 +30,10 @@ it('should resolve a single dependency', async () => {
   await resolver.resolve(['react']);
   expect(resolver.getDeps()).toMatchInlineSnapshot(`
 Array [
-  "react",
+  Object {
+    "name": "react",
+    "version": "1.0.0",
+  },
 ]
 `);
 });
@@ -58,8 +61,14 @@ it('should resolve two dependencies', async () => {
   await resolver.resolve(['react']);
   expect(resolver.getDeps()).toMatchInlineSnapshot(`
 Array [
-  "react",
-  "foo",
+  Object {
+    "name": "foo",
+    "version": "1.0.0",
+  },
+  Object {
+    "name": "react",
+    "version": "1.0.0",
+  },
 ]
 `);
 });
