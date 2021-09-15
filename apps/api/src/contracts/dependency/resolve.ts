@@ -28,10 +28,7 @@ interface ResolvedPackage {
 
 function _removeVersion(name: string) {
   const idx = name.lastIndexOf('@');
-  if (idx === 0) {
-    return name;
-  }
-  return name.substring();
+  if (idx)
 }
 
 export class PackageResolver {

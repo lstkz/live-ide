@@ -4,7 +4,7 @@ import { ResolvedPackage } from './types';
 import { convertToEsmBundleName, splitVersion } from './utils';
 import semver from 'semver';
 
-export class PackageResolver {
+export class PackageFetcher {
   private visited: Record<string, true> = {};
   private pkgMap: Record<string, ResolvedPackage> = {};
 
@@ -19,6 +19,7 @@ export class PackageResolver {
     sourceName: string,
     isESMProxy = false
   ): Promise<void> {
+    console.log('fetch', { name, version, sourceName, isESMProxy });
     if (this.visited[name]) {
       return;
     }
@@ -33,7 +34,7 @@ export class PackageResolver {
       }
       throw new ResolverError(`Package ${fullName} not found.`);
     }
-    if (!pkg.module) {
+    if (!pkg.module && !pkg.exports) {
       if (isESMProxy) {
         throw new ResolverError(
           `Expected ${fullName} to have a module property`

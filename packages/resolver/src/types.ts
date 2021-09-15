@@ -13,3 +13,8 @@ export interface LibraryInfo {
   typesBundleUrl: string;
   sourceUrl: string;
 }
+
+export interface BaseLibraryInfo {
+  name: string;
+  version: string;
+}

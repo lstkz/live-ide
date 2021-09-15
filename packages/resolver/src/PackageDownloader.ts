@@ -12,12 +12,17 @@ interface DownloadPackageData {
 
 export class PackageDownloader {
   private dir: tmp.DirResult;
+  private downloaded = new Set<string>();
 
   constructor() {
     this.dir = tmp.dirSync();
   }
 
   async download(pkg: DownloadPackageData) {
+    if (this.downloaded.has(pkg.name)) {
+      return;
+    }
+    this.downloaded.add(pkg.name);
     const tarPath = await fetchNpmTar(pkg.name, pkg.version);
     const cwd = Path.join(this.dir.name, pkg.name);
     fs.mkdirSync(cwd, { recursive: true });

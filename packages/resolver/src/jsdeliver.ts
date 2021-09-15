@@ -10,6 +10,7 @@ export interface BasicPackageInfo {
   version: string;
   module?: string;
   dependencies: Record<string, string>;
+  exports?: Record<string, string>;
 }
 
 export async function fetchPackage(name: string) {

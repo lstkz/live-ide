@@ -1,13 +1,13 @@
 import { mocked } from 'ts-jest/utils';
 import { BasicPackageInfo, fetchPackage } from '../src/jsdeliver';
-import { PackageResolver } from '../src/PackageResolver';
+import { PackageFetcher } from '../src/PackageFetcher';
 
 jest.mock('../src/jsdeliver');
 
 const mocked_fetchPackage = mocked(fetchPackage);
 
 it('should fetch a single package', async () => {
-  const resolver = new PackageResolver();
+  const resolver = new PackageFetcher();
   mocked_fetchPackage.mockImplementation(async name => {
     switch (name) {
       case 'foo@*': {
@@ -36,7 +36,7 @@ Array [
 });
 
 it('should fetch multiple packages package', async () => {
-  const resolver = new PackageResolver();
+  const resolver = new PackageFetcher();
   mocked_fetchPackage.mockImplementation(async name => {
     switch (name) {
       case 'foo@*': {
@@ -112,7 +112,7 @@ Array [
 });
 
 it('should handle a cycle', async () => {
-  const resolver = new PackageResolver();
+  const resolver = new PackageFetcher();
   mocked_fetchPackage.mockImplementation(async name => {
     switch (name) {
       case 'foo@1.0.0':
@@ -176,7 +176,7 @@ Array [
 });
 
 it('should return an esm proxy package', async () => {
-  const resolver = new PackageResolver();
+  const resolver = new PackageFetcher();
   mocked_fetchPackage.mockImplementation(async name => {
     switch (name) {
       case 'foo@*': {
@@ -215,7 +215,7 @@ Array [
 });
 
 it('should return an esm proxy package (scoped)', async () => {
-  const resolver = new PackageResolver();
+  const resolver = new PackageFetcher();
   mocked_fetchPackage.mockImplementation(async name => {
     switch (name) {
       case '@types/foo@*': {
@@ -254,7 +254,7 @@ Array [
 });
 
 it('should throw if not found', async () => {
-  const resolver = new PackageResolver();
+  const resolver = new PackageFetcher();
   mocked_fetchPackage.mockImplementation(async () => {
     return null;
   });
@@ -266,7 +266,7 @@ it('should throw if not found', async () => {
 });
 
 it('should throw if not es module', async () => {
-  const resolver = new PackageResolver();
+  const resolver = new PackageFetcher();
   mocked_fetchPackage.mockImplementation(async name => {
     switch (name) {
       case 'foo@*': {
@@ -290,7 +290,7 @@ it('should throw if not es module', async () => {
 });
 
 it('should throw if not @esm-bundle has no module prop', async () => {
-  const resolver = new PackageResolver();
+  const resolver = new PackageFetcher();
   mocked_fetchPackage.mockImplementation(async name => {
     switch (name) {
       case 'foo@*': {
