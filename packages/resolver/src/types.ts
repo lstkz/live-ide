@@ -17,3 +17,8 @@ export interface BaseLibraryInfo {
   name: string;
   version: string;
 }
+
+export interface ExtractedBundle {
+  name: string;
+  bundle: string;
+}

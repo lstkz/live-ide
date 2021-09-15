@@ -69,3 +69,42 @@ export function readCommonJsPath(path: string) {
   const entry = Path.join(path, pkg.main ?? 'index.js');
   return fs.readFileSync(entry, 'utf8');
 }
+
+export function walk(dir: string) {
+  const results: string[] = [];
+  const list = fs.readdirSync(dir);
+  list.forEach(file => {
+    file = Path.join(dir, file);
+    const stat = fs.statSync(file);
+    if (stat && stat.isDirectory()) {
+      results.push(...walk(file));
+    } else {
+      results.push(file);
+    }
+  });
+  return results;
+}
+
+export function ensureSuffix(str: string, suffix: string) {
+  if (!str) {
+    return null;
+  }
+  return str.endsWith(suffix) ? str : str + suffix;
+}
+
+export function getEntryTypes(pkg: any) {
+  return ensureSuffix(pkg.types || pkg.typings, '.d.ts');
+}
+
+export function getDirectories(path: string) {
+  return fs
+    .readdirSync(path)
+    .map(dir => Path.join(path, dir))
+    .filter(dir => fs.statSync(dir).isDirectory())
+    .map(dir => {
+      return {
+        name: Path.basename(dir),
+        path: dir,
+      };
+    });
+}

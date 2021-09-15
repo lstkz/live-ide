@@ -1,19 +1,19 @@
 import tmp from 'tmp';
 import Path from 'path';
 import fs from 'fs';
-import { Bundler } from '../src/Bundler';
+import { SourceBundler } from '../src/SourceBundler';
 import { writeFileMap } from './helper';
 
 let dir: tmp.DirResult = null!;
 let baseSourceDir: string = null!;
-let bundler: Bundler = null!;
+let bundler: SourceBundler = null!;
 
 beforeEach(() => {
   dir = tmp.dirSync();
   const targetPath = Path.join(dir.name, 'node_modules');
   fs.mkdirSync(targetPath, { recursive: true });
   baseSourceDir = targetPath;
-  bundler = new Bundler(targetPath);
+  bundler = new SourceBundler(targetPath);
 });
 
 afterEach(() => {

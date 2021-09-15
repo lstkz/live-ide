@@ -13,7 +13,7 @@ import {
   snake2Pascal,
 } from './utils';
 
-export class Bundler {
+export class SourceBundler {
   private dir: tmp.DirResult;
 
   constructor(private baseSourceDir: string) {
