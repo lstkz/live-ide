@@ -51,7 +51,6 @@ export class WorkspaceModel {
 
   async init(options: InitWorkspaceOptions) {
     this.options = options;
-    this.libraryUrl = options.libraryUrl;
     const { defaultOpenFiles, nodes } = options;
     const tabsState = this.editorStateService.loadTabsState();
     const nodeMap = R.indexBy(nodes, x => x.id);

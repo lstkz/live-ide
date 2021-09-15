@@ -10,7 +10,7 @@ import { randomString } from '../../common/helper';
 import { mapWorkspace } from '../../common/mapper';
 import { createWorkspaceNodes } from '../../common/workspace-tree';
 import { createContract, createRpcBinding } from '../../lib';
-import { resolve } from './resolve';
+import { resolve } from '../dependency/resolve';
 
 export const createWorkspace = createContract('workspace.createWorkspace')
   .params('user', 'templateId')
@@ -35,13 +35,13 @@ export const createWorkspace = createContract('workspace.createWorkspace')
     const libraries = Object.entries(JSON.parse(pkg.content!).dependencies).map(
       ([name, version]) => name + '@' + version
     );
+    const bundle = await resolve(libraries);
     const workspace: WorkspaceModel = {
       _id: template._id + '-' + randomString(12),
-      accessKey: randomString(20),
       nodes,
       userId: user?._id,
       libraries,
-      libraryUrl: await resolve(libraries).then(x => x.url),
+      ...bundle,
     };
     await WorkspaceCollection.insertOne(workspace);
     return mapWorkspace(workspace);

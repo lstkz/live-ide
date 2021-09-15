@@ -1,5 +1,5 @@
 import { ObjectID } from 'mongodb2';
-import { WorkspaceNodeType } from 'shared';
+import { Bundle, WorkspaceNodeType } from 'shared';
 import { createCollection } from '../db';
 
 export interface WorkspaceNode {
@@ -13,10 +13,10 @@ export interface WorkspaceNode {
 export interface WorkspaceModel {
   _id: string;
   nodes: WorkspaceNode[];
-  accessKey: string;
   userId?: ObjectID;
   libraries: string[];
-  libraryUrl: string;
+  sourceBundles: Bundle[];
+  typesBundles: Bundle[];
 }
 
 export const WorkspaceCollection = createCollection<WorkspaceModel>(

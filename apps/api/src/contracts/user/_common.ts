@@ -4,7 +4,6 @@ import { UserCollection, UserModel } from '../../collections/User';
 import { ObjectID } from 'mongodb';
 import { config } from 'config';
 import { AppError, UnauthorizedError } from '../../common/errors';
-import { dispatchEvent } from '../../dispatch';
 import { AuthData } from 'shared';
 import { mapUser } from '../../common/mapper';
 import { createToken } from './createToken';
@@ -20,10 +19,7 @@ interface CreateUserValues {
   githubId: number;
 }
 
-export async function createUser(
-  values: CreateUserValues,
-  publishEvents = false
-) {
+export async function createUser(values: CreateUserValues) {
   const userId = values.userId || new ObjectID();
   const user: UserModel = {
     _id: userId,
@@ -33,14 +29,6 @@ export async function createUser(
     name: values.name,
   };
   await UserCollection.insertOne(user);
-  if (publishEvents) {
-    await dispatchEvent({
-      type: 'UserRegistered',
-      payload: {
-        userId: user._id.toHexString(),
-      },
-    });
-  }
   return user;
 }
 

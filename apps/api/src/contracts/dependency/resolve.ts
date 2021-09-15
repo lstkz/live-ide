@@ -120,11 +120,11 @@ function _filterDuplicates(items: Bundle[]) {
   });
   const dup = new Set<string>();
   return items.filter(item => {
-    if (dup.has(item.name)) {
+    if (dup.has(item.name) || item.version !== max[item.name]) {
       return false;
     }
     dup.add(item.name);
-    return item.version === max[item.name];
+    return true;
   });
 }
 

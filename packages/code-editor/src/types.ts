@@ -1,4 +1,5 @@
 import type * as monacoEditor from 'monaco-editor/esm/vs/editor/editor.api';
+import { Bundle } from 'shared';
 import { ModelState } from './lib/ModelState';
 export * from './editor-types';
 
@@ -156,7 +157,8 @@ export interface InitWorkspaceOptions {
   defaultOpenFiles: string[];
   workspaceId: string;
   nodes: TreeNode[];
-  libraryUrl: string;
+  sourceBundles: Bundle[];
+  typesBundles: Bundle[];
 }
 
 export interface InitReadOnlyWorkspaceOptions {

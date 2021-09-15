@@ -25,15 +25,12 @@ export const authGithub = createContract('user.authGithub')
       });
       return generateAuthData(user);
     }
-    const user = await createUser(
-      {
-        email: githubData.email,
-        githubId: githubData.id,
-        username: githubData.username,
-        name: githubData.name,
-      },
-      true
-    );
+    const user = await createUser({
+      email: githubData.email,
+      githubId: githubData.id,
+      username: githubData.username,
+      name: githubData.name,
+    });
     if (githubData.avatar_url) {
       try {
         const img = await fetch(githubData.avatar_url).then(x =>

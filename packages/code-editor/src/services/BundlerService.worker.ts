@@ -1,8 +1,6 @@
 import * as Babel from '@babel/standalone';
 import Path from 'path';
 import replace from '@rollup/plugin-replace';
-import commonjs from '@rollup/plugin-commonjs';
-import transformCommonjs from 'babel-plugin-transform-commonjs';
 
 import { OutputAsset, OutputChunk, RenderedModule, rollup } from 'rollup';
 import { BundlerAction, BundlerCallbackAction, SourceCode } from '../types';
@@ -140,7 +138,6 @@ async function buildSourceCode(options: BuildSourceCodeOptions) {
           return Babel.transform(code, {
             filename,
             presets,
-            plugins: [transformCommonjs()],
           }) as any;
         },
       },

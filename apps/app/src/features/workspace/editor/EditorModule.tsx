@@ -124,7 +124,8 @@ export const EditorModule = React.forwardRef<
       defaultOpenFiles: [],
       nodes: mapWorkspaceNodes(workspace.id, workspace.items),
       workspaceId: workspace.id,
-      libraryUrl: workspace.libraryUrl,
+      sourceBundles: workspace.sourceBundles,
+      typesBundles: workspace.typesBundles,
     });
   };
 
@@ -139,7 +140,11 @@ export const EditorModule = React.forwardRef<
       editorFactory.init(monaco, container);
       themeService.init();
       creator.init(monaco, editorFactory.create());
-      await creator.modelCollection.addLibraryUrl(workspace.libraryUrl);
+      await Promise.all(
+        workspace.typesBundles.map(bundle =>
+          creator.modelCollection.addLibBundle(bundle.name, bundle.url)
+        )
+      );
 
       await browserPreviewService.waitForLoad();
       // browserPreviewService.setLibraries(workspace.libraries);

@@ -84,9 +84,9 @@ export interface NotificationSettings {
 export interface Workspace {
   id: string;
   items: WorkspaceNode[];
-  accessKey: string;
   libraries: string[];
-  libraryUrl: string;
+  sourceBundles: Bundle[];
+  typesBundles: Bundle[];
 }
 
 export interface WorkspaceNode {

@@ -52,12 +52,17 @@ export class ModelCollection {
     const sourceMap: Record<string, string> = await fetch(url).then(x =>
       x.json()
     );
+    let mappedName = name.replace('@types/', '');
+    if (mappedName.includes('__')) {
+      mappedName = '@' + mappedName.replace('__', '/');
+    }
     Object.keys(sourceMap).forEach(fileName => {
       const source = sourceMap[fileName];
+      console.log('adding', `${mappedName}/${fileName}`);
       const lib = this.monaco.editor.createModel(
         source,
         'typescript',
-        this.monaco.Uri.parse(`file:///node_modules/${name}/${fileName}`)
+        this.monaco.Uri.parse(`file:///node_modules/${mappedName}/${fileName}`)
       );
       this.libs.push(lib);
     });

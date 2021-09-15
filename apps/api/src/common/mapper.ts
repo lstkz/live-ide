@@ -1,5 +1,6 @@
+import * as R from 'remeda';
 import { UserModel } from '../collections/User';
-import { User } from 'shared';
+import { User, Workspace } from 'shared';
 import { WorkspaceModel } from '../collections/Workspace';
 import { renameId } from './helper';
 
@@ -13,12 +14,10 @@ export function mapUser(user: UserModel): User {
   };
 }
 
-export function mapWorkspace(workspace: WorkspaceModel) {
+export function mapWorkspace(workspace: WorkspaceModel): Workspace {
   return {
+    ...R.pick(workspace, ['sourceBundles', 'typesBundles', 'libraries']),
     id: workspace._id,
     items: workspace.nodes.map(renameId),
-    libraryUrl: workspace.libraryUrl,
-    libraries: workspace.libraries,
-    accessKey: workspace.accessKey,
   };
 }
