@@ -75,6 +75,7 @@ export class TypesBundler {
           fs.writeFileSync(fullPath, content);
           ret.push({
             name: dirInfo.name,
+            version: pkg.version,
             bundle: fullPath,
           });
         }

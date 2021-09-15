@@ -23,6 +23,9 @@ export class DependencyResolver {
   }
 
   private async findAllDeps(lib: string) {
+    if (lib.startsWith('@types/')) {
+      return;
+    }
     if (this.visitedDeps.has(lib)) {
       return;
     }

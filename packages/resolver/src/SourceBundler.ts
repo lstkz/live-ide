@@ -21,6 +21,15 @@ export class SourceBundler {
   }
 
   async bundle(lib: string) {
+    try {
+      return await this._bundle(lib);
+    } catch (e) {
+      console.error(e);
+      throw new Error('Cannot bundle ' + lib + ': ' + e.message);
+    }
+  }
+
+  private async _bundle(lib: string) {
     const split = lib.split('/');
     const start = split[0][0] === '@' ? 2 : 1;
     const targetLib = split.slice(0, start).join('/');
@@ -105,7 +114,7 @@ ${[...keys.values()].map(x => `  ${x},`).join('\n')}
       exports: 'named',
     });
     const content = output[0].code;
-    const sourceFilename = `${rootPkg.version}.${getHash(content)}.json`;
+    const sourceFilename = `${rootPkg.version}.${getHash(content)}.js`;
     const fullPath = Path.join(this.dir.name, sourceFilename);
     fs.writeFileSync(fullPath, content);
     return fullPath;

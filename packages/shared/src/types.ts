@@ -108,3 +108,9 @@ export interface PaginatedResult<T> {
 }
 
 export type ExtractType<T> = T extends { type: infer S } ? S : never;
+
+export interface Bundle {
+  url: string;
+  name: string;
+  version: string;
+}

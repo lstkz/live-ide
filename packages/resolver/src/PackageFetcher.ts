@@ -13,16 +13,18 @@ export class PackageFetcher {
     return this._fetch(name, version);
   }
 
+  async getExactVersion(fullName: string) {
+    const pkg = await this._fetchOrThrow(fullName);
+    return pkg.name + '@' + pkg.version;
+  }
+
   private async _fetch(name: string, version: string): Promise<void> {
     if (this.visited[name]) {
       return;
     }
     this.visited[name] = true;
     const fullName = name + '@' + version;
-    const pkg = await fetchPackage(fullName);
-    if (!pkg) {
-      throw new ResolverError(`Package ${fullName} not found.`);
-    }
+    const pkg = await this._fetchOrThrow(fullName);
     const existing = this.pkgMap[pkg.name];
     if (!existing || semver.lt(existing.version, pkg.version)) {
       this.pkgMap[name] = {
@@ -42,5 +44,13 @@ export class PackageFetcher {
     return Object.values(this.pkgMap).sort((a, b) =>
       a.name.localeCompare(b.name)
     );
+  }
+
+  private async _fetchOrThrow(fullName: string) {
+    const pkg = await fetchPackage(fullName);
+    if (!pkg) {
+      throw new ResolverError(`Package ${fullName} not found.`);
+    }
+    return pkg;
   }
 }

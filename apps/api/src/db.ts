@@ -12,6 +12,7 @@ export const {
     require('./collections/Template'),
     require('./collections/Workspace'),
     require('./collections/BundleHash'),
+    require('./collections/BundleCache'),
     // APPEND
   ],
   uri: config.mongodb.url,

@@ -20,5 +20,6 @@ export interface BaseLibraryInfo {
 
 export interface ExtractedBundle {
   name: string;
+  version: string;
   bundle: string;
 }
