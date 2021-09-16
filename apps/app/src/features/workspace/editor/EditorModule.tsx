@@ -75,7 +75,7 @@ function mapWorkspaceNodes(id: string, nodes: WorkspaceNode[]) {
         id: node.id,
         name: node.name,
         parentId: node.parentId,
-        content: node.content,
+        content: node.content!,
       };
     }
   });
@@ -120,8 +120,7 @@ export const EditorModule = React.forwardRef<
 
   const initWorkspace = (workspace: Workspace) => {
     return workspaceModel.init({
-      // defaultOpenFiles: ['./App.tsx'],
-      defaultOpenFiles: [],
+      defaultOpenFiles: ['./App.tsx'],
       nodes: mapWorkspaceNodes(workspace.id, workspace.items),
       workspaceId: workspace.id,
       sourceBundles: workspace.sourceBundles,
@@ -147,7 +146,7 @@ export const EditorModule = React.forwardRef<
       );
 
       await browserPreviewService.waitForLoad();
-      // browserPreviewService.setLibraries(workspace.libraries);
+      browserPreviewService.setLibraries(workspace.sourceBundles);
       await initWorkspace(workspace);
       setState(draft => {
         draft.isLoaded = true;

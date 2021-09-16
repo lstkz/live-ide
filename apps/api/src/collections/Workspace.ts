@@ -5,7 +5,7 @@ import { createCollection } from '../db';
 export interface WorkspaceNode {
   _id: string;
   name: string;
-  content?: string;
+  content?: string | null;
   parentId: string | null;
   type: WorkspaceNodeType;
 }

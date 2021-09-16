@@ -26,14 +26,29 @@ export class APIService implements IAPIService {
   }
 
   async addNode(values: AddNodeValues) {
-    throw new Error('TODO');
+    await api.workspace_createWorkspaceNode({
+      workspaceId: this.workspaceId,
+      name: values.name,
+      nodeId: values.id,
+      type: values.type,
+      content: '',
+      parentId: values.parentId,
+    });
   }
 
   async deleteNode(nodeId: string) {
-    throw new Error('TODO');
+    await api.workspace_deleteWorkspaceNode({
+      workspaceId: this.workspaceId,
+      nodeId,
+    });
   }
 
   async updateNode(values: UpdateNodeValues & { content?: string }) {
-    throw new Error('TODO');
+    await api.workspace_updateWorkspaceNode({
+      workspaceId: this.workspaceId,
+      nodeId: values.id,
+      content: values.content,
+      name: values.name ?? undefined,
+    });
   }
 }

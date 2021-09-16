@@ -58,7 +58,6 @@ export class ModelCollection {
     }
     Object.keys(sourceMap).forEach(fileName => {
       const source = sourceMap[fileName];
-      console.log('adding', `${mappedName}/${fileName}`);
       const lib = this.monaco.editor.createModel(
         source,
         'typescript',

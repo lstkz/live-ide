@@ -1,5 +1,5 @@
-import { IframeCallbackMessage, IframeMessage } from 'shared';
-import { BundleData, LibraryDep } from '../types';
+import { Bundle, IframeCallbackMessage, IframeMessage } from 'shared';
+import { BundleData } from '../types';
 
 export class BrowserPreviewService {
   private iframe: HTMLIFrameElement = null!;
@@ -57,10 +57,10 @@ export class BrowserPreviewService {
     this.importMap = importMap;
   }
 
-  setLibraries(libraries: LibraryDep[]) {
+  setLibraries(libraries: Bundle[]) {
     const map: Record<string, string> = {};
     libraries.forEach(lib => {
-      map[lib.name] = lib.source;
+      map[lib.name] = lib.url;
     });
     this.importMap = map;
   }

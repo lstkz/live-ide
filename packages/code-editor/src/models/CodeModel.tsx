@@ -33,6 +33,7 @@ export class CodeModel {
   private isOpened = false;
   private highlighVersion = 0;
   private ext = '';
+  private saveTimeout: any = 0;
 
   constructor(
     private monaco: Monaco,
@@ -59,6 +60,7 @@ export class CodeModel {
 
   dispose() {
     this.vsModel.dispose();
+    clearTimeout(this.saveTimeout);
   }
 
   save() {
@@ -158,6 +160,10 @@ export class CodeModel {
         this.isDirty = hasChanges;
       }
       this.highlight(current);
+      clearTimeout(this.saveTimeout);
+      this.saveTimeout = setTimeout(() => {
+        this.save();
+      }, 200);
     });
     this.committedText = source;
     this.highlight(source);

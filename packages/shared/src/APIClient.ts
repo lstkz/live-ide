@@ -1,8 +1,9 @@
 import fetch from 'cross-fetch';
 
 // IMPORTS
-import { AuthData, User, Workspace } from './types';
+import { BundleResolution, AuthData, User, Workspace } from './types';
 // IMPORTS END
+import { WorkspaceNodeType } from './types';
 
 export class APIClient {
   constructor(
@@ -18,6 +19,9 @@ export class APIClient {
   }
 
   // SIGNATURES
+  dependency_resolve(libraries: string[]): Promise<BundleResolution> {
+    return this.call('dependency.resolve', { libraries });
+  }
   template_createTemplate(values: {
     id: string;
     name: string;
@@ -34,16 +38,38 @@ export class APIClient {
   user_logout(): Promise<void> {
     return this.call('user.logout', {});
   }
-  workspace_resolve(libraries: string[]): Promise<{ url: string }> {
-    return this.call('workspace.resolve', { libraries });
+  workspace_createWorkspace(templateId: string): Promise<Workspace> {
+    return this.call('workspace.createWorkspace', { templateId });
   }
-  workspace_createWorkspace(values: {
-    templateId: string;
-  }): Promise<Workspace> {
-    return this.call('workspace.createWorkspace', { values });
+  workspace_createWorkspaceNode(values: {
+    name: string;
+    workspaceId: string;
+    nodeId: string;
+    type: WorkspaceNodeType;
+    content?: string | null | undefined;
+    parentId?: string | null | undefined;
+  }): Promise<void> {
+    return this.call('workspace.createWorkspaceNode', { values });
+  }
+  workspace_deleteWorkspaceNode(values: {
+    workspaceId: string;
+    nodeId: string;
+  }): Promise<void> {
+    return this.call('workspace.deleteWorkspaceNode', { values });
   }
   workspace_getWorkspace(id: string): Promise<Workspace> {
     return this.call('workspace.getWorkspace', { id });
+  }
+  workspace_resolve(libraries: string[]): Promise<{ url: string }> {
+    return this.call('workspace.resolve', { libraries });
+  }
+  workspace_updateWorkspaceNode(values: {
+    workspaceId: string;
+    nodeId: string;
+    name?: string | undefined;
+    content?: string | undefined;
+  }): Promise<void> {
+    return this.call('workspace.updateWorkspaceNode', { values });
   }
   // SIGNATURES END
   private async call(name: string, params: any): Promise<any> {

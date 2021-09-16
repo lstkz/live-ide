@@ -92,8 +92,8 @@ export interface Workspace {
 export interface WorkspaceNode {
   id: string;
   name: string;
-  content?: string;
-  parentId?: string | null;
+  content?: string | null;
+  parentId: string | null;
   type: WorkspaceNodeType;
 }
 
@@ -113,4 +113,9 @@ export interface Bundle {
   url: string;
   name: string;
   version: string;
+}
+
+export interface BundleResolution {
+  sourceBundles: Bundle[];
+  typesBundles: Bundle[];
 }

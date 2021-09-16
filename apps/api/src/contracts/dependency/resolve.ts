@@ -14,7 +14,7 @@ import {
 import mime from 'mime';
 import semver from 'semver';
 import { config } from 'config';
-import { Bundle } from 'shared';
+import { Bundle, BundleResolution } from 'shared';
 import { BundleCacheCollection } from '../../collections/BundleCache';
 import { DUPLICATED_UNIQUE_VALUE_ERROR_CODE } from '../../common/mongo';
 
@@ -48,11 +48,6 @@ async function uploadFile(subDir: string, file: string) {
       .promise();
   }
   return `${config.cdnBaseUrl}/${key}`;
-}
-
-interface BundleResolution {
-  sourceBundles: Bundle[];
-  typesBundles: Bundle[];
 }
 
 async function resolveSingleNoCache(lib: string): Promise<BundleResolution> {
