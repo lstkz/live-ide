@@ -26,6 +26,10 @@ export default class MyDocument extends Document {
               rel="stylesheet"
               href="https://rsms.me/inter/inter.css"
             ></link>
+            <link
+              rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.3/gh-fork-ribbon.min.css"
+            />
             {initialProps.styles}
             {sheet.getStyleElement()}
           </>
