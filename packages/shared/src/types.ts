@@ -88,6 +88,7 @@ export interface Selection {
   selectionStartColumn: number;
   selectionStartLineNumber: number;
   startColumn: number;
+  startLineNumber: number;
 }
 
 export interface CodeChange {
@@ -154,7 +155,7 @@ export type WorkspaceUpdateData =
   | {
       type: 'file-updated';
       payload: {
-        fromSocketId: string;
+        fromId: string;
         nodeId: string;
         // changeId: string;
         changes: CodeChange[];

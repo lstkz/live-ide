@@ -3,6 +3,7 @@ import type { editor } from 'monaco-editor';
 import { TypedEventEmitter } from '../lib/TypedEventEmitter';
 import { HighlighterService } from '../services/HighlighterService';
 import { CodeActionsCallbackMap, Monaco } from '../types';
+import { CodeChange } from 'shared';
 
 function _getModelLanguage(path: string) {
   if (/.tsx?$/.test(path)) {
@@ -16,6 +17,9 @@ function _getModelLanguage(path: string) {
   }
   if (/.html$/.test(path)) {
     return 'html';
+  }
+  if (/.json$/.test(path)) {
+    return 'json';
   }
   return 'text';
 }
@@ -35,6 +39,7 @@ export class CodeModel {
   private ext = '';
   private saveTimeout: any = 0;
   private decorationMap: Record<string, string[]> = {};
+  private ignoreContentVersions = new Set<number>();
 
   constructor(
     private monaco: Monaco,
@@ -161,6 +166,11 @@ export class CodeModel {
     );
   }
 
+  applyCodeChanges(changes: CodeChange[]) {
+    this.ignoreContentVersions.add(this.vsModel.getVersionId() + 1);
+    this.vsModel.applyEdits(changes, false);
+  }
+
   ///
 
   private createNewModel(source: string, path: string) {
@@ -174,54 +184,14 @@ export class CodeModel {
       this.monaco.Uri.parse(fixFilePath(path))
     );
     this.committedText = source;
-    if (path.endsWith('App.tsx')) {
-      setTimeout(() => {
-        this.vsModel.deltaDecorations(
-          [],
-          [
-            // {
-            //   range: new this.monaco.Range(7, 17, 7, 17),
-            //   options: {
-            //     // inlineClassName: 'myInlineDecoration.bg-red',
-            //     afterContentClassName: 'lv-user.lv-user--pink.lv-user--dove',
-            //     beforeContentClassName: 'lv-cursor.lv-cursor--pink ',
-            //     // after: {
-            //     //   content: ' ',
-            //     //   inlineClassName: 'username fas fa-cat',
-            //     // },
-            //   },
-            // },
-            // {
-            //   range: new this.monaco.Range(7, 10, 7, 20),
-            //   options: {
-            //     inlineClassName: 'lv-selection--purple',
-            //   },
-            // },
-          ]
-        );
-        // console.log('version: ', this.vsModel.getVersionId());
-        // this.vsModel.applyEdits(
-        //   [
-        //     {
-        //       forceMoveMarkers: false,
-        //       range: {
-        //         startLineNumber: 7,
-        //         startColumn: 17,
-        //         endLineNumber: 7,
-        //         endColumn: 20,
-        //       },
-        //       text: 'x',
-        //     },
-        //   ],
-        //   false
-        // );
-      }, 100);
-    }
     this.vsModel.onDidChangeContent(e => {
-      this.emitter.emit('fileUpdated', {
-        fileId: this.id,
-        changes: e.changes,
-      });
+      if (!this.ignoreContentVersions.has(e.versionId)) {
+        this.emitter.emit('fileUpdated', {
+          fileId: this.id,
+          changes: e.changes,
+          order: -1,
+        });
+      }
       const original = this.committedText;
       const current = this.vsModel.getValue();
       const hasChanges = original !== current;

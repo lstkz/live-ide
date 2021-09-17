@@ -4,9 +4,11 @@ import { TypedEventEmitter } from '../lib/TypedEventEmitter';
 import { CodeModel } from './CodeModel';
 import {
   CodeActionsCallbackMap,
+  CodeChangesData,
   CursorUpdatedData,
   MarkerSeverity,
   Monaco,
+  SelectionUpdatedData,
 } from '../types';
 import { HighlighterService } from '../services/HighlighterService';
 
@@ -64,6 +66,12 @@ export class ModelCollection {
       } else {
         this.emitter.emit('selectionUpdated', null);
       }
+    });
+    editor.onDidBlurEditorText(() => {
+      this.emitter.emit('cursorUpdated', null);
+    });
+    editor.onDidChangeModel(() => {
+      this.emitter.emit('selectionUpdated', null);
     });
   }
 
@@ -223,21 +231,58 @@ export class ModelCollection {
     if (!model) {
       return;
     }
-    data.position.column;
-    model.applyDecoration(data.identityId, 'cursor', [
-      {
+    model.applyDecoration(
+      data.identityId,
+      'cursor',
+      [data.position, ...data.secondaryPositions].map(item => ({
         range: new this.monaco.Range(
-          data.position.lineNumber,
-          data.position.column,
-          data.position.lineNumber,
-          data.position.column
+          item.lineNumber,
+          item.column,
+          item.lineNumber,
+          item.column
         ),
         options: {
           afterContentClassName: data.userClassName,
           beforeContentClassName: data.cursorClassName,
         },
-      },
-    ]);
+      }))
+    );
+  }
+
+  updateCollaborationSelection(data: SelectionUpdatedData) {
+    this.codeModels.forEach(model => {
+      model.clearDecoration(data.identityId, 'selection');
+    });
+    if (!data.fileId || !data.selection) {
+      return;
+    }
+    const model = this.getModelById(data.fileId);
+    if (!model) {
+      return;
+    }
+    model.applyDecoration(
+      data.identityId,
+      'selection',
+      [data.selection, ...data.secondarySelections].map(item => ({
+        range: new this.monaco.Range(
+          item.startLineNumber,
+          item.startColumn,
+          item.endLineNumber,
+          item.endColumn
+        ),
+        options: {
+          inlineClassName: data.className,
+        },
+      }))
+    );
+  }
+
+  updateCollaborationCodeChanges(data: CodeChangesData) {
+    const model = this.getModelById(data.fileId);
+    if (!model) {
+      return;
+    }
+    model.applyCodeChanges(data.changes);
   }
 
   ///

@@ -1,4 +1,5 @@
 import {
+  CodeChange,
   ParticipantCursor,
   ParticipantSelection,
   WorkspaceNodeType,
@@ -78,6 +79,20 @@ export class APIService implements IAPIService {
       workspaceId: this.workspaceId,
       order,
       selection,
+    });
+  }
+
+  async broadcastCodeChanges(
+    nodeId: string,
+    order: number,
+    changes: CodeChange[]
+  ) {
+    await api.workspace_broadcastCodeChanges({
+      identityId: this.identityId,
+      workspaceId: this.workspaceId,
+      order,
+      nodeId,
+      changes,
     });
   }
 }

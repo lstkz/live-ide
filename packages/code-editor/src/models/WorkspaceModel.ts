@@ -290,8 +290,21 @@ export class WorkspaceModel {
         void this.apiService.updateSelection(-1, null);
       }
     });
+    this.emitter.addEventListener('fileUpdated', data => {
+      void this.apiService.broadcastCodeChanges(
+        data.fileId,
+        data.order,
+        data.changes
+      );
+    });
     this.collaborationSocket.addEventListener('cursorUpdated', data => {
       this.modelCollection.updateCollaborationCursor(data);
+    });
+    this.collaborationSocket.addEventListener('selectionUpdated', data => {
+      this.modelCollection.updateCollaborationSelection(data);
+    });
+    this.collaborationSocket.addEventListener('codeChanges', data => {
+      this.modelCollection.updateCollaborationCodeChanges(data);
     });
   }
 

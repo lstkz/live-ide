@@ -29,6 +29,32 @@ export class CollaborationSocket implements ICollaborationSocket {
         });
       }
     });
+    mainSocket.addEventListener(
+      'selection-updated',
+      ({ selection, fromId }) => {
+        const participant = this.getParticipant(fromId);
+        if (participant) {
+          const { color } = participant.identity;
+          this.emitter.emit('selectionUpdated', {
+            className: `lv-selection--${color}`,
+            fileId: selection?.nodeId ?? null,
+            identityId: fromId,
+            selection: selection?.selection ?? null,
+            secondarySelections: selection?.secondarySelections ?? [],
+          });
+        }
+      }
+    );
+    mainSocket.addEventListener(
+      'file-updated',
+      ({ changes, nodeId, fromId }) => {
+        this.emitter.emit('codeChanges', {
+          changes,
+          fileId: nodeId,
+          identityId: fromId,
+        });
+      }
+    );
   }
 
   private getParticipant(id: string) {

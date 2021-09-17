@@ -156,6 +156,11 @@ export interface IAPIService {
     order: number,
     selection: ParticipantSelection | null
   ): Promise<void>;
+  broadcastCodeChanges(
+    nodeId: string,
+    order: number,
+    changes: CodeChange[]
+  ): Promise<void>;
 }
 
 export interface InitWorkspaceOptions {
@@ -203,7 +208,11 @@ export interface CodeActionsCallbackMap {
   saved: (data: { fileId: string; content: string }) => void;
   opened: (data: { fileId: string }) => void;
   errorsChanged: (data: { diffErrorMap: Record<string, boolean> }) => void;
-  fileUpdated: (data: { fileId: string; changes: CodeChange[] }) => void;
+  fileUpdated: (data: {
+    fileId: string;
+    order: number;
+    changes: CodeChange[];
+  }) => void;
   cursorUpdated: (
     data: {
       fileId: string;
@@ -243,8 +252,23 @@ export interface CursorUpdatedData {
   secondaryPositions: CursorPosition[];
 }
 
+export interface SelectionUpdatedData {
+  fileId: string | null;
+  identityId: string;
+  className: string;
+  selection: Selection | null;
+  secondarySelections: Selection[];
+}
+export interface CodeChangesData {
+  fileId: string;
+  identityId: string;
+  changes: CodeChange[];
+}
+
 export interface CollaborationSocketCallbackMap {
   cursorUpdated: (data: CursorUpdatedData) => void;
+  selectionUpdated: (data: SelectionUpdatedData) => void;
+  codeChanges: (data: CodeChangesData) => void;
 }
 
 export interface ICollaborationSocket {

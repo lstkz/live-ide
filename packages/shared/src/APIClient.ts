@@ -7,6 +7,7 @@ import {
   WorkspaceNodeType,
   ParticipantCursor,
   ParticipantSelection,
+  CodeChange,
 } from './types';
 
 export class APIClient {
@@ -41,6 +42,15 @@ export class APIClient {
   }
   user_logout(): Promise<void> {
     return this.call('user.logout', {});
+  }
+  workspace_broadcastCodeChanges(values: {
+    identityId: string;
+    workspaceId: string;
+    nodeId: string;
+    order: number;
+    changes: CodeChange[];
+  }): Promise<void> {
+    return this.call('workspace.broadcastCodeChanges', { values });
   }
   workspace_createWorkspace(templateId: string): Promise<Workspace> {
     return this.call('workspace.createWorkspace', { templateId });
