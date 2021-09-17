@@ -5,6 +5,8 @@ import {
   WorkspaceCollection,
   WorkspaceNode,
 } from '../../collections/Workspace';
+import { notifyOtherParticipants } from './_common';
+import { renameId } from '../../common/helper';
 
 export const createWorkspaceNode = createContract(
   'workspace.createWorkspaceNode'
@@ -12,6 +14,7 @@ export const createWorkspaceNode = createContract(
   .params('values')
   .schema({
     values: S.object().keys({
+      identityId: S.string(),
       workspaceId: S.string(),
       nodeId: S.string().uuid(),
       content: S.string().optional().nullable(),
@@ -41,6 +44,15 @@ export const createWorkspaceNode = createContract(
         },
       }
     );
+    await notifyOtherParticipants({
+      workspaceId: values.workspaceId,
+      identityId: values.identityId,
+      order: -1,
+      data: {
+        type: 'node-added',
+        payload: renameId(node),
+      },
+    });
   });
 
 export const createWorkspaceNodeRpc = createRpcBinding({

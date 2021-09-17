@@ -6,7 +6,9 @@ import net from 'net';
 import { ampq } from './lib';
 import { getAppUser } from './contracts/user/_common';
 import { AppUser } from './types';
-import { AppSocketMsg } from 'shared';
+import { AppSocketMsg, WorkspaceIdentity } from 'shared';
+import { dispatchEvent } from './dispatch';
+import { getSocketId } from './common/helper';
 
 declare module 'ws' {
   class _WS extends WebSocket {}
@@ -30,19 +32,36 @@ export function startSockets(server: http.Server) {
     });
   }, 30000);
 
-  wss.on('connection', async (ws, user: AppUser) => {
+  wss.on('connection', async (ws, user: AppUser | WorkspaceIdentity) => {
     ws.isAlive = true;
     ws.on('pong', () => {
       ws.isAlive = true;
     });
-    const userId = user._id.toHexString();
-    if (!connectionMap.has(userId)) {
-      connectionMap.set(userId, []);
+    const isUser = 'accessToken' in user;
+    const socketId = getSocketId(user);
+    if (!connectionMap.has(socketId)) {
+      connectionMap.set(socketId, []);
     }
-    const userConnections = connectionMap.get(userId)!;
+    const userConnections = connectionMap.get(socketId)!;
     userConnections.push(ws);
+    if (!isUser) {
+      void dispatchEvent({
+        type: 'workspace-identity-connected',
+        payload: {
+          identity: user,
+        },
+      });
+    }
     ws.on('close', () => {
       userConnections.splice(userConnections.indexOf(ws), 1);
+      if (!isUser) {
+        void dispatchEvent({
+          type: 'workspace-identity-disconnected',
+          payload: {
+            identity: user,
+          },
+        });
+      }
     });
   });
 
@@ -55,6 +74,21 @@ export function startSockets(server: http.Server) {
         socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
         socket.destroy();
       };
+      if (query.workspaceIdentity) {
+        let identity: WorkspaceIdentity = null!;
+        try {
+          // todo validate props
+          identity = JSON.parse(query.workspaceIdentity as string);
+        } catch (e) {
+          socket.write('HTTP/1.1 400 Bad request\r\n\r\n');
+          socket.destroy();
+          return;
+        }
+        wss.handleUpgrade(request, socket, head, function done(ws) {
+          wss.emit('connection', ws, identity);
+        });
+        return;
+      }
       if (!query.token || typeof query.token !== 'string') {
         send401();
         return;
@@ -71,8 +105,8 @@ export function startSockets(server: http.Server) {
   );
 
   ampq.addSocketHandler(async message => {
-    const { userId } = (message as AppSocketMsg).payload;
-    const userConnections = connectionMap.get(userId) ?? [];
+    const { socketId } = (message as AppSocketMsg).payload;
+    const userConnections = connectionMap.get(socketId) ?? [];
     userConnections.forEach(ws => {
       try {
         ws.send(JSON.stringify(message));

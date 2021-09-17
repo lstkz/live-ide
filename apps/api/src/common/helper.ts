@@ -1,8 +1,8 @@
 import crypto from 'crypto';
 import { Response } from 'node-fetch';
-import { WorkspaceNodeModel } from '../collections/WorkspaceNode';
-import { ObjectID } from 'mongodb2';
 import { config } from 'config';
+import { AppUser } from '../types';
+import { WorkspaceIdentity } from 'shared';
 
 export function safeExtend<T, U>(obj: T, values: U): T & U {
   return Object.assign(obj, values);
@@ -115,14 +115,12 @@ export function revertRenameId<T extends { id: any }>(
   return ret;
 }
 
-export function getWorkspaceNodeS3Key(item: WorkspaceNodeModel) {
-  return `${getWorkspaceS3Prefix(item.workspaceId)}${item._id}`;
-}
-
-export function getWorkspaceS3Prefix(workspaceId: ObjectID) {
-  return `cdn/workspace/${workspaceId}/`;
-}
-
 export function getCDNUrl(s3Key: string) {
   return config.cdnBaseUrl + s3Key.replace(/^cdn/, '');
+}
+
+export function getSocketId(target: AppUser | WorkspaceIdentity) {
+  return 'accessToken' in target
+    ? 'user-' + target._id.toHexString()
+    : target.id;
 }

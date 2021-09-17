@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { ExtractType } from 'shared';
+import { ExtractType, WorkspaceIdentity } from 'shared';
 import { UserModel } from './collections/User';
 
 export type Handler = (req: Request, res: Response, next: NextFunction) => void;
@@ -16,7 +16,19 @@ declare module 'express' {
 
 export type AppTask = { type: 'example'; payload: {} };
 
-export type AppEvent = { type: 'example'; payload: {} };
+export type AppEvent =
+  | {
+      type: 'workspace-identity-connected';
+      payload: {
+        identity: WorkspaceIdentity;
+      };
+    }
+  | {
+      type: 'workspace-identity-disconnected';
+      payload: {
+        identity: WorkspaceIdentity;
+      };
+    };
 
 export type AppEventType = ExtractType<Pick<AppEvent, 'type'>>;
 export type AppTaskType = ExtractType<Pick<AppTask, 'type'>>;

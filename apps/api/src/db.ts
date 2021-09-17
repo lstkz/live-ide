@@ -13,6 +13,7 @@ export const {
     require('./collections/Workspace'),
     require('./collections/BundleHash'),
     require('./collections/BundleCache'),
+    require('./collections/WorkspaceParticipant'),
     // APPEND
   ],
   uri: config.mongodb.url,

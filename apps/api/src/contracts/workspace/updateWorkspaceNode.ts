@@ -1,6 +1,7 @@
 import { S } from 'schema';
 import { WorkspaceCollection } from '../../collections/Workspace';
 import { createContract, createRpcBinding } from '../../lib';
+import { notifyOtherParticipants } from './_common';
 
 export const updateWorkspaceNode = createContract(
   'workspace.updateWorkspaceNode'
@@ -8,6 +9,7 @@ export const updateWorkspaceNode = createContract(
   .params('values')
   .schema({
     values: S.object().keys({
+      identityId: S.string(),
       workspaceId: S.string(),
       nodeId: S.string(),
       name: S.string().optional(),
@@ -32,6 +34,21 @@ export const updateWorkspaceNode = createContract(
         $set: setValues,
       }
     );
+
+    if (values.name != null) {
+      await notifyOtherParticipants({
+        workspaceId: values.workspaceId,
+        identityId: values.identityId,
+        order: -1,
+        data: {
+          type: 'node-updated',
+          payload: {
+            id: values.nodeId,
+            name: values.name,
+          },
+        },
+      });
+    }
   });
 
 export const updateWorkspaceNodeRpc = createRpcBinding({

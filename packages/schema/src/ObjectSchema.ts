@@ -96,7 +96,7 @@ export class ObjectSchema<
 
   keys<K extends SchemaMap>(schema: K) {
     this._keys = schema;
-    return (this as any) as ObjectSchema<
+    return this as any as ObjectSchema<
       TReq,
       TNull,
       ConvertObject<ExtractObject<typeof schema>>
@@ -106,7 +106,7 @@ export class ObjectSchema<
 
   unknown() {
     this._allowUnknown = true;
-    return (this as any) as ObjectSchema<
+    return this as any as ObjectSchema<
       TReq,
       TNull,
       TKeys & { [key: string]: any }
@@ -114,9 +114,12 @@ export class ObjectSchema<
   }
 
   as<T>() {
-    return (this as any) as ObjectSchema<TReq, TNull, T>;
+    return this as any as ObjectSchema<TReq, TNull, T>;
   }
   optional() {
-    return (super.optional() as any) as ObjectSchema<false, TNull, TKeys>;
+    return super.optional() as any as ObjectSchema<false, TNull, TKeys>;
+  }
+  nullable() {
+    return super.nullable() as any as ObjectSchema<TReq, TNull, TKeys>;
   }
 }
