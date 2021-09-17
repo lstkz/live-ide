@@ -2,6 +2,7 @@ import React from 'react';
 import { Logo } from '../../components/Logo';
 import { createUrl } from 'src/common/url';
 import tw from 'twin.macro';
+import { ParticipantList } from './ParticipantList';
 
 export function WorkspaceHeader() {
   return (
@@ -12,6 +13,7 @@ export function WorkspaceHeader() {
           name: 'home',
         })}
       />
+      <ParticipantList />
     </div>
   );
 }

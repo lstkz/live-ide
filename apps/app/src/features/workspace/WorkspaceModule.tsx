@@ -10,8 +10,12 @@ import {
   RIGHT_COOKIE_NAME,
   RIGHT_DEFAULT,
 } from './const';
+
+import WS from 'reconnecting-websocket';
 import { EditorModule, EditorModuleRef } from './editor/EditorModule';
-import { Workspace } from 'shared';
+import { AppSocketMsg, Workspace, WorkspaceIdentity } from 'shared';
+import { API_URL } from 'src/config';
+import { getIdentity } from './identity';
 
 interface Actions {
   setLeftSidebarTab: (leftSidebarTab: LeftSidebarTab | null) => void;
@@ -19,6 +23,8 @@ interface Actions {
 }
 
 interface State {
+  identity: WorkspaceIdentity;
+  otherParticipants: WorkspaceIdentity[];
   workspace: Workspace;
   initialLeftSidebar: number;
   initialRightSidebar: number;
@@ -40,6 +46,8 @@ function WorkspaceModuleInner(props: WorkspaceSSRProps) {
   const { initialLeftSidebar, initialRightSidebar, workspace } = props;
   const [state, setState] = useImmer<State>(
     {
+      identity: null!,
+      otherParticipants: [],
       workspace,
       initialLeftSidebar,
       initialRightSidebar,
@@ -61,6 +69,43 @@ function WorkspaceModuleInner(props: WorkspaceSSRProps) {
       });
     },
   });
+
+  React.useEffect(() => {
+    const identity = getIdentity(workspace.id);
+    setState(draft => {
+      draft.identity = identity;
+    });
+    const socketUrl =
+      API_URL.replace(/^http/, 'ws') +
+      '/socket?workspaceIdentity=' +
+      encodeURIComponent(JSON.stringify(identity));
+    const ws = new WS(socketUrl);
+    const onMessage = (e: MessageEvent<any>) => {
+      const msg = JSON.parse(e.data) as AppSocketMsg;
+      if (
+        msg.type === 'workspace-update' &&
+        msg.payload.workspaceId === workspace.id
+      ) {
+        const sub = msg.payload.data;
+        switch (sub.type) {
+          case 'participants-info': {
+            setState(draft => {
+              draft.otherParticipants = sub.payload.participants.map(
+                x => x.identity
+              );
+            });
+            return;
+          }
+          default:
+            return;
+        }
+      }
+    };
+    ws.addEventListener('message', onMessage);
+    return () => {
+      ws.close();
+    };
+  }, []);
 
   return (
     <Provider state={state} actions={actions}>

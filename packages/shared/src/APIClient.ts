@@ -43,6 +43,7 @@ export class APIClient {
   }
   workspace_createWorkspaceNode(values: {
     name: string;
+    identityId: string;
     workspaceId: string;
     nodeId: string;
     type: WorkspaceNodeType;
@@ -52,6 +53,7 @@ export class APIClient {
     return this.call('workspace.createWorkspaceNode', { values });
   }
   workspace_deleteWorkspaceNode(values: {
+    identityId: string;
     workspaceId: string;
     nodeId: string;
   }): Promise<void> {
@@ -63,7 +65,14 @@ export class APIClient {
   workspace_resolve(libraries: string[]): Promise<{ url: string }> {
     return this.call('workspace.resolve', { libraries });
   }
+  workspace_updateCursor(): Promise<void> {
+    return this.call('workspace.updateCursor', {});
+  }
+  workspace_updateSelection(): Promise<void> {
+    return this.call('workspace.updateSelection', {});
+  }
   workspace_updateWorkspaceNode(values: {
+    identityId: string;
     workspaceId: string;
     nodeId: string;
     name?: string | undefined;

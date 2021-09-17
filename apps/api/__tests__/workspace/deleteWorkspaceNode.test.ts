@@ -12,6 +12,7 @@ beforeEach(async () => {
 it('should update node properly', async () => {
   await execContract(deleteWorkspaceNode, {
     values: {
+      identityId: '1',
       workspaceId: 'w1',
       nodeId: 'node-1',
     },

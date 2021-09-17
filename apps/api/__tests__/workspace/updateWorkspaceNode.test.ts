@@ -12,6 +12,7 @@ beforeEach(async () => {
 it('should update node properly', async () => {
   await execContract(updateWorkspaceNode, {
     values: {
+      identityId: '1',
       workspaceId: 'w1',
       nodeId: 'node-2',
       name: 'updated name',

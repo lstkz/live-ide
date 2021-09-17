@@ -1,4 +1,5 @@
 import '../styles/globals.css';
+import '../styles/vs-code-annotations.css';
 import { AppContext, AppProps } from 'next/app';
 import { config } from '@fortawesome/fontawesome-svg-core';
 import '@fortawesome/fontawesome-svg-core/styles.css';

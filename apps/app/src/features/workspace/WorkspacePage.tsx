@@ -34,6 +34,7 @@ export function WorkspacePage() {
     node.style.height = '100%';
     return node;
   });
+
   const height = `calc(100% - 2.5rem)`;
   return (
     <div tw="h-full flex flex-col">

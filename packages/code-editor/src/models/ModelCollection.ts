@@ -36,6 +36,12 @@ export class ModelCollection {
         model.setHasError(!!currentErrorMap[model.uri.toString()]);
       });
     });
+    editor.onDidChangeCursorPosition(e => {
+      console.log('pos', e);
+    });
+    editor.onDidChangeCursorSelection(e => {
+      console.log('sel', e);
+    });
   }
 
   async addLib(name: string, url: string) {

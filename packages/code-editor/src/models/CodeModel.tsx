@@ -148,7 +148,51 @@ export class CodeModel {
       this.monaco.Uri.parse(fixFilePath(path))
     );
     this.committedText = source;
-    this.vsModel.onDidChangeContent(() => {
+    if (path.endsWith('App.tsx')) {
+      setTimeout(() => {
+        this.vsModel.deltaDecorations(
+          [],
+          [
+            {
+              range: new this.monaco.Range(7, 17, 7, 17),
+              options: {
+                // inlineClassName: 'myInlineDecoration.bg-red',
+                afterContentClassName: 'lv-user.lv-user--pink.lv-user--dove ',
+                beforeContentClassName: 'lv-cursor.lv-cursor--pink ',
+                // after: {
+                //   content: ' ',
+                //   inlineClassName: 'username fas fa-cat',
+                // },
+              },
+            },
+            {
+              range: new this.monaco.Range(7, 10, 7, 20),
+              options: {
+                inlineClassName: 'lv-selection--purple',
+              },
+            },
+          ]
+        );
+        // console.log('version: ', this.vsModel.getVersionId());
+        // this.vsModel.applyEdits(
+        //   [
+        //     {
+        //       forceMoveMarkers: false,
+        //       range: {
+        //         startLineNumber: 7,
+        //         startColumn: 17,
+        //         endLineNumber: 7,
+        //         endColumn: 20,
+        //       },
+        //       text: 'x',
+        //     },
+        //   ],
+        //   false
+        // );
+      }, 100);
+    }
+    this.vsModel.onDidChangeContent(e => {
+      console.log(e);
       const original = this.committedText;
       const current = this.vsModel.getValue();
       const hasChanges = original !== current;
