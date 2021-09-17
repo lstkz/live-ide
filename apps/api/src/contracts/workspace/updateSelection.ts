@@ -45,7 +45,7 @@ export const updateSelection = createContract('workspace.updateSelection')
   });
 
 export const updateSelectionRpc = createRpcBinding({
-  injectUser: true,
+  public: true,
   signature: 'workspace.updateSelection',
   handler: updateSelection,
 });

@@ -3,7 +3,11 @@ import fetch from 'cross-fetch';
 // IMPORTS
 import { BundleResolution, AuthData, User, Workspace } from './types';
 // IMPORTS END
-import { WorkspaceNodeType } from './types';
+import {
+  WorkspaceNodeType,
+  ParticipantCursor,
+  ParticipantSelection,
+} from './types';
 
 export class APIClient {
   constructor(
@@ -65,11 +69,21 @@ export class APIClient {
   workspace_resolve(libraries: string[]): Promise<{ url: string }> {
     return this.call('workspace.resolve', { libraries });
   }
-  workspace_updateCursor(): Promise<void> {
-    return this.call('workspace.updateCursor', {});
+  workspace_updateCursor(values: {
+    identityId: string;
+    workspaceId: string;
+    order: number;
+    cursor: ParticipantCursor | null;
+  }): Promise<void> {
+    return this.call('workspace.updateCursor', { values });
   }
-  workspace_updateSelection(): Promise<void> {
-    return this.call('workspace.updateSelection', {});
+  workspace_updateSelection(values: {
+    identityId: string;
+    workspaceId: string;
+    order: number;
+    selection: ParticipantSelection | null;
+  }): Promise<void> {
+    return this.call('workspace.updateSelection', { values });
   }
   workspace_updateWorkspaceNode(values: {
     identityId: string;

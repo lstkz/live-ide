@@ -10,7 +10,12 @@ import { EditorStateService } from './services/EditorStateService';
 import { FormatterService } from './services/FormatterService';
 import { HighlighterService } from './services/HighlighterService';
 import { ThemeService } from './services/ThemeService';
-import { CodeActionsCallbackMap, IAPIService, Monaco } from './types';
+import {
+  CodeActionsCallbackMap,
+  IAPIService,
+  ICollaborationSocket,
+  Monaco,
+} from './types';
 
 export class EditorCreator {
   bundlerService: BundlerService;
@@ -26,7 +31,8 @@ export class EditorCreator {
   constructor(
     public apiService: IAPIService,
     public browserPreviewService: BrowserPreviewService,
-    public editorStateService: EditorStateService
+    public editorStateService: EditorStateService,
+    public collaborationSocket: ICollaborationSocket
   ) {
     this.bundlerService = new BundlerService(browserPreviewService);
     this.emitter = new TypedEventEmitter<CodeActionsCallbackMap>();
@@ -47,7 +53,8 @@ export class EditorCreator {
       this.apiService,
       this.editorStateService,
       this.bundlerService,
-      this.modelCollection
+      this.modelCollection,
+      this.collaborationSocket
     );
     this.editorFactory = new EditorFactory();
   }

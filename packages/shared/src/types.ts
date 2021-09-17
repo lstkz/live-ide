@@ -91,7 +91,6 @@ export interface Selection {
 }
 
 export interface CodeChange {
-  forceMoveMarkers: boolean;
   range: {
     startLineNumber: number;
     startColumn: number;
@@ -99,7 +98,8 @@ export interface CodeChange {
     endColumn: number;
   };
   rangeLength: number;
-  rangeOffset: boolean;
+  rangeOffset: number;
+  text: string;
 }
 
 export interface ParticipantCursor {
@@ -119,7 +119,7 @@ export interface ParticipantInfo {
   selection: ParticipantSelection | null;
 }
 
-export type WorkspaceUpdateType =
+export type WorkspaceUpdateData =
   | {
       type: 'node-added';
       payload: WorkspaceNode;
@@ -156,7 +156,7 @@ export type WorkspaceUpdateType =
       payload: {
         fromSocketId: string;
         nodeId: string;
-        changeId: string;
+        // changeId: string;
         changes: CodeChange[];
       };
     }
@@ -175,7 +175,7 @@ export type AppSocketMsg =
   | {
       type: 'workspace-update';
       payload: {
-        data: WorkspaceUpdateType;
+        data: WorkspaceUpdateData;
         workspaceId: string;
         socketId: string;
         order: number;

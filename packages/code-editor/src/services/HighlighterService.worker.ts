@@ -19,6 +19,7 @@ const extMap: Record<string, string> = {
   jsx: 'JavaScriptReact.tmLanguage.json',
   ts: 'TypeScript.tmLanguage.json',
   tsx: 'TypeScriptReact.tmLanguage.json',
+  json: 'JSON.tmLanguage.json',
 };
 
 export const CDN_BASE_URL = process.env.CDN_BASE_URL! ?? '';

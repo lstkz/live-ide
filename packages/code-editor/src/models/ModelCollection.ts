@@ -2,7 +2,12 @@ import type { editor } from 'monaco-editor';
 import * as R from 'remeda';
 import { TypedEventEmitter } from '../lib/TypedEventEmitter';
 import { CodeModel } from './CodeModel';
-import { CodeActionsCallbackMap, MarkerSeverity, Monaco } from '../types';
+import {
+  CodeActionsCallbackMap,
+  CursorUpdatedData,
+  MarkerSeverity,
+  Monaco,
+} from '../types';
 import { HighlighterService } from '../services/HighlighterService';
 
 interface EditorFile {
@@ -37,10 +42,28 @@ export class ModelCollection {
       });
     });
     editor.onDidChangeCursorPosition(e => {
-      console.log('pos', e);
+      const model = this.getCurrentCodeModel();
+      if (model) {
+        this.emitter.emit('cursorUpdated', {
+          fileId: model.id,
+          position: e.position,
+          secondaryPositions: e.secondaryPositions,
+        });
+      } else {
+        this.emitter.emit('cursorUpdated', null);
+      }
     });
     editor.onDidChangeCursorSelection(e => {
-      console.log('sel', e);
+      const model = this.getCurrentCodeModel();
+      if (model) {
+        this.emitter.emit('selectionUpdated', {
+          fileId: model.id,
+          selection: e.selection,
+          secondarySelections: e.secondarySelections,
+        });
+      } else {
+        this.emitter.emit('selectionUpdated', null);
+      }
     });
   }
 
@@ -189,6 +212,34 @@ export class ModelCollection {
     });
   }
 
+  updateCollaborationCursor(data: CursorUpdatedData) {
+    this.codeModels.forEach(model => {
+      model.clearDecoration(data.identityId, 'cursor');
+    });
+    if (!data.fileId || !data.position) {
+      return;
+    }
+    const model = this.getModelById(data.fileId);
+    if (!model) {
+      return;
+    }
+    data.position.column;
+    model.applyDecoration(data.identityId, 'cursor', [
+      {
+        range: new this.monaco.Range(
+          data.position.lineNumber,
+          data.position.column,
+          data.position.lineNumber,
+          data.position.column
+        ),
+        options: {
+          afterContentClassName: data.userClassName,
+          beforeContentClassName: data.cursorClassName,
+        },
+      },
+    ]);
+  }
+
   ///
 
   private getModelById(id: string) {
@@ -200,5 +251,8 @@ export class ModelCollection {
       throw new Error('Model not found: ' + id);
     }
     return model;
+  }
+  private getCurrentCodeModel() {
+    return this.codeModels.find(model => model.getIsCurrent());
   }
 }

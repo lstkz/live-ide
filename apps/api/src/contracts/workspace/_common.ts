@@ -1,4 +1,4 @@
-import { WorkspaceUpdateType } from 'shared';
+import { WorkspaceUpdateData } from 'shared';
 import { WorkspaceParticipantCollection } from '../../collections/WorkspaceParticipant';
 import { getSocketId } from '../../common/helper';
 import { dispatchSocketMsg } from '../../dispatch';
@@ -31,7 +31,7 @@ interface NotifyOthersParticipantsOptions {
   workspaceId: string;
   identityId: string;
   order: number;
-  data: WorkspaceUpdateType;
+  data: WorkspaceUpdateData;
 }
 
 export async function notifyOtherParticipants(

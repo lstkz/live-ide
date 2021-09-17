@@ -10,6 +10,7 @@ import {
   FileNode,
   IAPIService,
   InitWorkspaceOptions,
+  ICollaborationSocket,
   TreeNode,
   WorkspaceState,
 } from '../types';
@@ -44,9 +45,10 @@ export class WorkspaceModel {
     private apiService: IAPIService,
     private editorStateService: EditorStateService,
     private bundlerService: BundlerService,
-    private modelCollection: ModelCollection
+    private modelCollection: ModelCollection,
+    private collaborationSocket: ICollaborationSocket
   ) {
-    this.modelState = new ModelState(getDefaultState(), 'WorkspaceModelNext');
+    this.modelState = new ModelState(getDefaultState(), 'WorkspaceModel');
   }
 
   async init(options: InitWorkspaceOptions) {
@@ -265,6 +267,31 @@ export class WorkspaceModel {
           }
         });
       });
+    });
+    this.emitter.addEventListener('cursorUpdated', data => {
+      if (data) {
+        void this.apiService.updateCursor(-1, {
+          nodeId: data.fileId,
+          position: data.position,
+          secondaryPositions: data.secondaryPositions,
+        });
+      } else {
+        void this.apiService.updateCursor(-1, null);
+      }
+    });
+    this.emitter.addEventListener('selectionUpdated', data => {
+      if (data) {
+        void this.apiService.updateSelection(-1, {
+          nodeId: data.fileId,
+          selection: data.selection,
+          secondarySelections: data.secondarySelections,
+        });
+      } else {
+        void this.apiService.updateSelection(-1, null);
+      }
+    });
+    this.collaborationSocket.addEventListener('cursorUpdated', data => {
+      this.modelCollection.updateCollaborationCursor(data);
     });
   }
 

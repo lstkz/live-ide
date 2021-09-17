@@ -42,7 +42,7 @@ export const updateCursor = createContract('workspace.updateCursor')
   });
 
 export const updateCursorRpc = createRpcBinding({
-  injectUser: true,
+  public: true,
   signature: 'workspace.updateCursor',
   handler: updateCursor,
 });

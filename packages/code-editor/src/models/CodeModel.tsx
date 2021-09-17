@@ -34,6 +34,7 @@ export class CodeModel {
   private highlighVersion = 0;
   private ext = '';
   private saveTimeout: any = 0;
+  private decorationMap: Record<string, string[]> = {};
 
   constructor(
     private monaco: Monaco,
@@ -135,6 +136,31 @@ export class CodeModel {
     }
   }
 
+  getIsCurrent() {
+    return this.vsModel === this.editor.getModel();
+  }
+
+  clearDecoration(sourceId: string, type: string) {
+    const key = `${sourceId}_${type}`;
+    const oldIds = this.decorationMap[key] ?? [];
+    if (oldIds.length) {
+      this.vsModel.deltaDecorations(oldIds, []);
+      this.decorationMap[key] = [];
+    }
+  }
+
+  applyDecoration(
+    sourceId: string,
+    type: string,
+    newDecorations: editor.IModelDeltaDecoration[]
+  ) {
+    const key = `${sourceId}_${type}`;
+    this.decorationMap[key] = this.vsModel.deltaDecorations(
+      this.decorationMap[key] ?? [],
+      newDecorations
+    );
+  }
+
   ///
 
   private createNewModel(source: string, path: string) {
@@ -153,24 +179,24 @@ export class CodeModel {
         this.vsModel.deltaDecorations(
           [],
           [
-            {
-              range: new this.monaco.Range(7, 17, 7, 17),
-              options: {
-                // inlineClassName: 'myInlineDecoration.bg-red',
-                afterContentClassName: 'lv-user.lv-user--pink.lv-user--dove ',
-                beforeContentClassName: 'lv-cursor.lv-cursor--pink ',
-                // after: {
-                //   content: ' ',
-                //   inlineClassName: 'username fas fa-cat',
-                // },
-              },
-            },
-            {
-              range: new this.monaco.Range(7, 10, 7, 20),
-              options: {
-                inlineClassName: 'lv-selection--purple',
-              },
-            },
+            // {
+            //   range: new this.monaco.Range(7, 17, 7, 17),
+            //   options: {
+            //     // inlineClassName: 'myInlineDecoration.bg-red',
+            //     afterContentClassName: 'lv-user.lv-user--pink.lv-user--dove',
+            //     beforeContentClassName: 'lv-cursor.lv-cursor--pink ',
+            //     // after: {
+            //     //   content: ' ',
+            //     //   inlineClassName: 'username fas fa-cat',
+            //     // },
+            //   },
+            // },
+            // {
+            //   range: new this.monaco.Range(7, 10, 7, 20),
+            //   options: {
+            //     inlineClassName: 'lv-selection--purple',
+            //   },
+            // },
           ]
         );
         // console.log('version: ', this.vsModel.getVersionId());
@@ -192,7 +218,10 @@ export class CodeModel {
       }, 100);
     }
     this.vsModel.onDidChangeContent(e => {
-      console.log(e);
+      this.emitter.emit('fileUpdated', {
+        fileId: this.id,
+        changes: e.changes,
+      });
       const original = this.committedText;
       const current = this.vsModel.getValue();
       const hasChanges = original !== current;

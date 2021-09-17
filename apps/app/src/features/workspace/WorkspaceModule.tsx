@@ -10,12 +10,11 @@ import {
   RIGHT_COOKIE_NAME,
   RIGHT_DEFAULT,
 } from './const';
-
-import WS from 'reconnecting-websocket';
 import { EditorModule, EditorModuleRef } from './editor/EditorModule';
-import { AppSocketMsg, Workspace, WorkspaceIdentity } from 'shared';
-import { API_URL } from 'src/config';
+import { Workspace, WorkspaceIdentity } from 'shared';
 import { getIdentity } from './identity';
+import { MainWorkspaceSocket } from './WorkspaceSocket';
+import { CollaborationSocket } from './CollaborationSocket';
 
 interface Actions {
   setLeftSidebarTab: (leftSidebarTab: LeftSidebarTab | null) => void;
@@ -69,47 +68,42 @@ function WorkspaceModuleInner(props: WorkspaceSSRProps) {
       });
     },
   });
+  const workspaceSocket = React.useMemo(
+    () => new MainWorkspaceSocket(workspace.id),
+    [workspace.id]
+  );
+  const collaborationSocket = React.useMemo(
+    () => new CollaborationSocket(workspaceSocket),
+    [workspaceSocket]
+  );
 
   React.useEffect(() => {
     const identity = getIdentity(workspace.id);
     setState(draft => {
       draft.identity = identity;
     });
-    const socketUrl =
-      API_URL.replace(/^http/, 'ws') +
-      '/socket?workspaceIdentity=' +
-      encodeURIComponent(JSON.stringify(identity));
-    const ws = new WS(socketUrl);
-    const onMessage = (e: MessageEvent<any>) => {
-      const msg = JSON.parse(e.data) as AppSocketMsg;
-      if (
-        msg.type === 'workspace-update' &&
-        msg.payload.workspaceId === workspace.id
-      ) {
-        const sub = msg.payload.data;
-        switch (sub.type) {
-          case 'participants-info': {
-            setState(draft => {
-              draft.otherParticipants = sub.payload.participants.map(
-                x => x.identity
-              );
-            });
-            return;
-          }
-          default:
-            return;
-        }
+    workspaceSocket.addEventListener(
+      'participants-info',
+      ({ participants }) => {
+        setState(draft => {
+          draft.otherParticipants = participants.map(x => x.identity);
+        });
       }
-    };
-    ws.addEventListener('message', onMessage);
+    );
+    workspaceSocket.start(identity);
     return () => {
-      ws.close();
+      workspaceSocket.disconnect();
     };
-  }, []);
+  }, [workspaceSocket]);
 
   return (
     <Provider state={state} actions={actions}>
-      <EditorModule workspace={workspace} ref={editorRef}>
+      <EditorModule
+        workspace={workspace}
+        identity={state.identity}
+        collaborationSocket={collaborationSocket}
+        ref={editorRef}
+      >
         <WorkspacePage />
       </EditorModule>
     </Provider>

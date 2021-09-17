@@ -1,5 +1,13 @@
 import type * as monacoEditor from 'monaco-editor/esm/vs/editor/editor.api';
-import { Bundle } from 'shared';
+import {
+  Bundle,
+  CodeChange,
+  CursorPosition,
+  ParticipantCursor,
+  ParticipantSelection,
+  Selection,
+  WorkspaceUpdateData,
+} from 'shared';
 import { ModelState } from './lib/ModelState';
 export * from './editor-types';
 
@@ -139,11 +147,14 @@ export interface UpdateWorkspaceNodeInput {
 
 export interface IAPIService {
   addNode(values: CreateWorkspaceNodeInput): Promise<void>;
-
   deleteNode(nodeId: string): Promise<void>;
-
   updateNode(
     values: UpdateWorkspaceNodeInput & { content?: string }
+  ): Promise<void>;
+  updateCursor(order: number, cursor: ParticipantCursor | null): Promise<void>;
+  updateSelection(
+    order: number,
+    selection: ParticipantSelection | null
   ): Promise<void>;
 }
 
@@ -192,4 +203,53 @@ export interface CodeActionsCallbackMap {
   saved: (data: { fileId: string; content: string }) => void;
   opened: (data: { fileId: string }) => void;
   errorsChanged: (data: { diffErrorMap: Record<string, boolean> }) => void;
+  fileUpdated: (data: { fileId: string; changes: CodeChange[] }) => void;
+  cursorUpdated: (
+    data: {
+      fileId: string;
+      position: CursorPosition | null;
+      secondaryPositions: CursorPosition[];
+    } | null
+  ) => void;
+  selectionUpdated: (
+    data: {
+      fileId: string;
+      selection: Selection | null;
+      secondarySelections: Selection[];
+    } | null
+  ) => void;
+}
+
+type ExtractPayload<T> = T extends { payload: infer S } ? S : never;
+type ExtractType<T> = T extends { type: infer S } ? S : never;
+export type WorkspaceUpdateDataType = ExtractType<
+  Pick<WorkspaceUpdateData, 'type'>
+>;
+
+export type ExtractWorkspaceUpdateData<T> = ExtractPayload<
+  WorkspaceUpdateData extends { type: infer K }
+    ? K extends T
+      ? Pick<WorkspaceUpdateData, 'payload'>
+      : never
+    : never
+>;
+
+export interface CursorUpdatedData {
+  fileId: string | null;
+  identityId: string;
+  cursorClassName: string;
+  userClassName: string;
+  position: CursorPosition | null;
+  secondaryPositions: CursorPosition[];
+}
+
+export interface CollaborationSocketCallbackMap {
+  cursorUpdated: (data: CursorUpdatedData) => void;
+}
+
+export interface ICollaborationSocket {
+  addEventListener<T extends keyof CollaborationSocketCallbackMap>(
+    type: T,
+    callback: CollaborationSocketCallbackMap[T]
+  ): () => void;
 }

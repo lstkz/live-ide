@@ -12,8 +12,14 @@ import {
   EditorCreator,
 } from 'code-editor';
 import { IFRAME_ORIGIN } from 'src/config';
-import { Workspace, WorkspaceNode, WorkspaceNodeType } from 'shared';
+import {
+  Workspace,
+  WorkspaceIdentity,
+  WorkspaceNode,
+  WorkspaceNodeType,
+} from 'shared';
 import { MonacoLoader } from './MonacoLoader';
+import { CollaborationSocket } from '../CollaborationSocket';
 
 interface Actions {
   load: (container: HTMLDivElement) => void;
@@ -33,19 +39,25 @@ interface FinalState extends State {
 const [Provider, useContext] = createModuleContext<FinalState, Actions>();
 
 interface EditorModuleProps {
+  identity: WorkspaceIdentity | null;
   children: React.ReactNode;
   workspace: Workspace;
+  collaborationSocket: CollaborationSocket;
 }
 
-function useServices(workspace: Workspace) {
+function useServices(
+  collaborationSocket: CollaborationSocket,
+  workspace: Workspace
+) {
   return React.useMemo(() => {
-    const apiService = new APIService(workspace.id);
+    const apiService = new APIService('', workspace.id);
     const editorStateService = new EditorStateService(workspace.id);
     const browserPreviewService = new BrowserPreviewService(IFRAME_ORIGIN);
     const creator = new EditorCreator(
       apiService,
       browserPreviewService,
-      editorStateService
+      editorStateService,
+      collaborationSocket
     );
     const editorFactory = new EditorFactory();
     const monacoLoader = new MonacoLoader();
@@ -89,8 +101,8 @@ export interface EditorModuleRef {
 export const EditorModule = React.forwardRef<
   EditorModuleRef,
   EditorModuleProps
->((props, ref) => {
-  const { children } = props;
+>((props, _ref) => {
+  const { children, identity, collaborationSocket } = props;
   const [state, setState, getState] = useImmer<State>(
     {
       isLoaded: false,
@@ -99,8 +111,18 @@ export const EditorModule = React.forwardRef<
     },
     'EditorModule'
   );
-  const { editorFactory, monacoLoader, browserPreviewService, creator } =
-    useServices(props.workspace);
+  const {
+    editorFactory,
+    monacoLoader,
+    browserPreviewService,
+    creator,
+    apiService,
+  } = useServices(collaborationSocket, props.workspace);
+  React.useEffect(() => {
+    if (identity) {
+      apiService.updateIdentityId(identity.id);
+    }
+  }, [identity]);
   const { workspaceModel, themeService } = creator;
   const loadedDefer = React.useMemo(() => {
     let resolve: () => void = null!;
@@ -144,7 +166,6 @@ export const EditorModule = React.forwardRef<
           creator.modelCollection.addLibBundle(bundle.name, bundle.url)
         )
       );
-
       await browserPreviewService.waitForLoad();
       browserPreviewService.setLibraries(workspace.sourceBundles);
       await initWorkspace(workspace);
