@@ -1,7 +1,5 @@
 import Link from 'next/link';
 import React from 'react';
-import tw from 'twin.macro';
-import { LogoSvg } from './LogoSvg';
 
 interface LogoProps {
   imgCss?: any;
@@ -10,13 +8,12 @@ interface LogoProps {
 }
 
 export function Logo(props: LogoProps) {
-  const { black, href, imgCss, ...rest } = props;
+  const { href } = props;
 
   return (
     <Link href={href ?? '/'}>
-      <a>
-        <span className="sr-only">Practice.dev</span>
-        <LogoSvg css={[tw`h-8 w-auto`, imgCss]} {...rest} dark={black} />
+      <a className="text-gray-300 tracking-wider font-medium font-mono">
+        LIVE-IDE.DEV
       </a>
     </Link>
   );

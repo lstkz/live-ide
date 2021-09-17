@@ -11,7 +11,7 @@ export default function ErrorPage(props: ErrorPageProps) {
   const { error, title, description } = props;
   return (
     <div tw="min-h-screen pt-16 pb-12 flex flex-col bg-white">
-      <main tw="flex-grow flex flex-col justify-center max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8">
+      <main tw="flex-grow flex flex-col justify-center max-w-7xl w-full mx-auto px-4">
         <div tw="py-16">
           <div tw="text-center">
             <p tw="text-sm font-semibold text-indigo-600 uppercase tracking-wide">

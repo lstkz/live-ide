@@ -3,7 +3,10 @@ import { WorkspaceIdentity } from 'shared';
 import { WorkspaceCollection } from '../../collections/Workspace';
 import { WorkspaceParticipantCollection } from '../../collections/WorkspaceParticipant';
 import { createContract, createEventBinding } from '../../lib';
-import { dispatchParticipantsInfoUpdate } from './_common';
+import {
+  dispatchParticipantsInfoUpdate,
+  notifyOtherParticipants,
+} from './_common';
 
 export const participantLeft = createContract('workspace.participantLeft')
   .params('identity')
@@ -16,6 +19,30 @@ export const participantLeft = createContract('workspace.participantLeft')
     if (!workspace) {
       return;
     }
+    await notifyOtherParticipants({
+      workspaceId: workspace._id,
+      identityId: identity.id,
+      order: -1,
+      data: {
+        type: 'selection-updated',
+        payload: {
+          fromId: identity.id,
+          selection: null,
+        },
+      },
+    });
+    await notifyOtherParticipants({
+      workspaceId: workspace._id,
+      identityId: identity.id,
+      order: -1,
+      data: {
+        type: 'cursor-updated',
+        payload: {
+          fromId: identity.id,
+          cursor: null,
+        },
+      },
+    });
     await WorkspaceParticipantCollection.deleteMany({
       'identity.id': identity.id,
     });

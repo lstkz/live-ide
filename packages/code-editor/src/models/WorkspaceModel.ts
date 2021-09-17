@@ -27,10 +27,6 @@ function getDefaultState(): WorkspaceState {
   };
 }
 
-function randomHash() {
-  return R.randomString(15);
-}
-
 const TODO_INPUT_FILE = './index.tsx';
 
 export class WorkspaceModel {
@@ -135,6 +131,84 @@ export class WorkspaceModel {
 
   async removeNode(nodeId: string) {
     void this.apiService.deleteNode(nodeId);
+    this._removeNode(nodeId);
+  }
+
+  async renameNode(nodeId: string, name: string) {
+    void this.apiService.updateNode({ id: nodeId, name });
+    this._renameNode(nodeId, name);
+  }
+
+  addNew(newNode: TreeNode) {
+    this._addNew(newNode);
+    void this.apiService.addNode({
+      ...newNode,
+      workspaceId: this.options.workspaceId,
+    });
+    if (newNode.type === 'directory') {
+      return;
+    }
+    this.openFile(newNode.id);
+    requestAnimationFrame(() => {
+      this.codeEditorModel.focus();
+    });
+  }
+
+  dispose() {}
+
+  setReadOnly(readOnly: boolean) {
+    this.codeEditorModel.setReadOnly(readOnly);
+  }
+
+  getBundledCode() {
+    return this.bundlerService.loadCodeAsync(this.getLoadCodeOptions());
+  }
+
+  ///
+
+  private _addNew(node: TreeNode) {
+    const nodeId = node.id;
+    this.setState(draft => {
+      draft.nodes.push(node);
+    });
+    if (node.type === 'directory') {
+      return;
+    }
+    const pathHelper = new FileTreeHelper(this.state.nodes);
+    this.modelCollection.addFile({
+      id: nodeId,
+      path: pathHelper.getPath(nodeId),
+      source: '',
+    });
+  }
+
+  private _renameNode(nodeId: string, name: string) {
+    this.setState(draft => {
+      draft.nodes.forEach(item => {
+        if (item.id === nodeId) {
+          item.name = name;
+        }
+      });
+      draft.tabs.forEach(item => {
+        if (item.id === nodeId) {
+          item.name = name;
+        }
+      });
+    });
+    const treeHelper = new FileTreeHelper(this.state.nodes);
+    const renameNodes = treeHelper.flattenDirectory(nodeId);
+    renameNodes.forEach(node => {
+      if (node.type === 'file') {
+        this.modelCollection.changeFilePath(
+          node.id,
+          treeHelper.getPath(node.id)
+        );
+      }
+    });
+    this.loadCode();
+  }
+
+  private _removeNode(nodeId: string) {
     const node = this.getNodeById(nodeId);
     const nodesToRemove = doFn(() => {
       if (node.type === 'directory') {
@@ -163,71 +237,6 @@ export class WorkspaceModel {
     this.syncTabs();
     this.loadCode();
   }
-
-  async renameNode(nodeId: string, name: string) {
-    void this.apiService.updateNode({ id: nodeId, name });
-    this.setState(draft => {
-      draft.nodes.forEach(item => {
-        if (item.id === nodeId) {
-          item.name = name;
-        }
-      });
-      draft.tabs.forEach(item => {
-        if (item.id === nodeId) {
-          item.name = name;
-        }
-      });
-    });
-    const treeHelper = new FileTreeHelper(this.state.nodes);
-    const renameNodes = treeHelper.flattenDirectory(nodeId);
-    renameNodes.forEach(node => {
-      if (node.type === 'file') {
-        this.modelCollection.changeFilePath(
-          node.id,
-          treeHelper.getPath(node.id)
-        );
-      }
-    });
-    this.loadCode();
-  }
-
-  addNew(newNode: TreeNode) {
-    const nodeId = newNode.id;
-    const hash = randomHash();
-    void this.apiService.addNode({
-      ...newNode,
-      workspaceId: this.options.workspaceId,
-      hash,
-    });
-    this.setState(draft => {
-      draft.nodes.push(newNode);
-    });
-    if (newNode.type === 'directory') {
-      return;
-    }
-    const pathHelper = new FileTreeHelper(this.state.nodes);
-    this.modelCollection.addFile({
-      id: nodeId,
-      path: pathHelper.getPath(nodeId),
-      source: '',
-    });
-    this.openFile(nodeId);
-    requestAnimationFrame(() => {
-      this.codeEditorModel.focus();
-    });
-  }
-
-  dispose() {}
-
-  setReadOnly(readOnly: boolean) {
-    this.codeEditorModel.setReadOnly(readOnly);
-  }
-
-  getBundledCode() {
-    return this.bundlerService.loadCodeAsync(this.getLoadCodeOptions());
-  }
-
-  ///
 
   private attachEvents() {
     if (this.hasAttachedEvents) {
@@ -305,6 +314,15 @@ export class WorkspaceModel {
     });
     this.collaborationSocket.addEventListener('codeChanges', data => {
       this.modelCollection.updateCollaborationCodeChanges(data);
+    });
+    this.collaborationSocket.addEventListener('nodeAdded', data => {
+      this._addNew(data);
+    });
+    this.collaborationSocket.addEventListener('nodeRemoved', id => {
+      this._removeNode(id);
+    });
+    this.collaborationSocket.addEventListener('nodeUpdated', data => {
+      this._renameNode(data.id, data.name);
     });
   }
 

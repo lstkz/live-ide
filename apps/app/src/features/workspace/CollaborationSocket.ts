@@ -55,6 +55,15 @@ export class CollaborationSocket implements ICollaborationSocket {
         });
       }
     );
+    mainSocket.addEventListener('node-added', node => {
+      this.emitter.emit('nodeAdded', node);
+    });
+    mainSocket.addEventListener('node-removed', ({ id }) => {
+      this.emitter.emit('nodeRemoved', id);
+    });
+    mainSocket.addEventListener('node-updated', data => {
+      this.emitter.emit('nodeUpdated', data);
+    });
   }
 
   private getParticipant(id: string) {

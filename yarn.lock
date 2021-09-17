@@ -5115,6 +5115,11 @@ gifwrap@^0.9.2:
     image-q "^1.1.1"
     omggif "^1.0.10"
 
+github-buttons@^2.8.0:
+  version "2.19.0"
+  resolved "https://registry.yarnpkg.com/github-buttons/-/github-buttons-2.19.0.tgz#8eb966fec288038b47cfe1f931355f50c0e10811"
+  integrity sha512-N483U9QbYIS0lZKLxye2XXMHZ4ISJ9OcYJd1ChtJxYsF475xeKF2zC2Ko51SCiQmi0RnLvk25ocJDq+hOpZLfw==
+
 glob-parent@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/glob-parent/-/glob-parent-3.1.0.tgz#9e6af6299d8d3bd2bd40430832bd113df906c5ae"
@@ -8173,6 +8178,13 @@ react-easy-crop@^3.5.2:
   dependencies:
     normalize-wheel "^1.0.1"
     tslib "2.0.1"
+
+react-github-btn@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/react-github-btn/-/react-github-btn-1.2.1.tgz#ece93f609a4bad5e7eb9f47ae49bfaba69466dce"
+  integrity sha512-/gXD01mHAOhW0xYuNJFDn08OGjaMXOjcg6GCKVPdHvQcWzswH4aT85DLDAAJ6Zhw/71veSIH4Kx1BTBfy69SsA==
+  dependencies:
+    github-buttons "^2.8.0"
 
 react-hook-form@^7.0.4:
   version "7.15.3"

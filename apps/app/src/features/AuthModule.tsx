@@ -48,7 +48,7 @@ export function AuthModule(props: AuthProps) {
         draft.user = data.user;
       });
       if (redirectUrl !== false) {
-        void router.push(redirectUrl ?? createUrl({ name: 'modules' }));
+        void router.push(redirectUrl ?? createUrl({ name: 'home' }));
       }
     },
     updateUser: values => {

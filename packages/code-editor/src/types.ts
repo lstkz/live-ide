@@ -34,7 +34,7 @@ interface BaseNode {
 
 export interface FileNode extends BaseNode {
   type: 'file';
-  content?: string;
+  content?: string | null;
 }
 
 export interface DirectoryNode extends BaseNode {
@@ -135,7 +135,6 @@ export interface CreateWorkspaceNodeInput {
   workspaceId: string;
   name: string;
   parentId?: string | null;
-  hash: string;
   type: 'file' | 'directory';
 }
 
@@ -269,6 +268,9 @@ export interface CollaborationSocketCallbackMap {
   cursorUpdated: (data: CursorUpdatedData) => void;
   selectionUpdated: (data: SelectionUpdatedData) => void;
   codeChanges: (data: CodeChangesData) => void;
+  nodeAdded: (data: TreeNode) => void;
+  nodeRemoved: (id: string) => void;
+  nodeUpdated: (data: { id: string; name: string }) => void;
 }
 
 export interface ICollaborationSocket {

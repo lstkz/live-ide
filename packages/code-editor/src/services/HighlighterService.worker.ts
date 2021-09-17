@@ -14,8 +14,11 @@ function sendMessage(action: HighlighterCallbackAction) {
 
 const extMap: Record<string, string> = {
   css: 'css.tmLanguage.json',
+  'source.css': 'css.tmLanguage.json',
   html: 'html.tmLanguage.json',
+  'text.html.basic': 'html.tmLanguage.json',
   js: 'JavaScript.tmLanguage.json',
+  'source.js': 'JavaScript.tmLanguage.json',
   jsx: 'JavaScriptReact.tmLanguage.json',
   ts: 'TypeScript.tmLanguage.json',
   tsx: 'TypeScriptReact.tmLanguage.json',
@@ -28,7 +31,7 @@ const registry = new Registry({
   getGrammarDefinition: async scopeName => {
     const name = extMap[scopeName];
     if (!name) {
-      throw new Error('Lang not supported');
+      throw new Error('Lang not supported: ' + scopeName);
     }
     return {
       format: 'json',
