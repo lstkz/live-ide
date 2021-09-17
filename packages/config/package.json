@@ -1,0 +1,15 @@
+{
+  "name": "config",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.ts",
+  "engines": {},
+  "scripts": {
+    "tsc": "tsc --noEmit",
+    "test": "yarn run tsc "
+  },
+  "keywords": [],
+  "author": "",
+  "license": "UNLICENSED",
+  "dependencies": {}
+}

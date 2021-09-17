@@ -1,0 +1,25 @@
+{
+  "name": "code-editor",
+  "version": "0.0.1",
+  "scripts": {
+    "jest": "TZ=America/New_York jest",
+    "test": "yarn run tsc && yarn run lint && yarn run jest",
+    "lint": "eslint . --ext .ts"
+  },
+  "dependencies": {
+    "@monaco-editor/loader": "^1.1.1",
+    "@babel/standalone": "^7.14.7",
+    "monaco-editor": "^0.27.0",
+    "monaco-textmate": "^3.0.1",
+    "onigasm": "^2.2.5",
+    "rollup": "^2.52.7",
+    "monaco-vscode-textmate-theme-converter": "^0.1.1"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jest": "^26.0.24",
+    "jest": "^27.0.6",
+    "jest-watch-suspend": "^1.1.2",
+    "jest-watch-typeahead": "^0.6.4"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "name": "lv-cli",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.ts",
+  "bin": {
+    "lv": "src/bin.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@types/adm-zip": "0.4.33",
+    "@types/mime-types": "^2.1.0",
+    "@types/mz": "^2.7.2",
+    "@types/tmp": "^0.1.0",
+    "adm-zip": "0.4.14",
+    "commander": "^4.1.1",
+    "mz": "^2.7.0",
+    "tmp": "^0.1.0"
+  }
+}

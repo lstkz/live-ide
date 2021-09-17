@@ -1,0 +1,26 @@
+{
+  "extends": "../../base.tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "lib": [
+      "dom",
+      "DOM.Iterable",
+      "es6",
+      "ES2017.object",
+      "ES2016.Array.Include",
+      "ES2021"
+    ],
+    "noEmit": true,
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "paths": {
+      "context-api": ["../../packages/context-api"],
+      "shared": ["../../packages/shared"]
+    }
+  },
+  "references": [],
+  "include": ["src", ".eslintrc.js"],
+  "exclude": ["tests", "dist", "build"]
+}

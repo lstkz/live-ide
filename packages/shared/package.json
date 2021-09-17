@@ -1,0 +1,9 @@
+{
+  "name": "shared",
+  "version": "0.0.1",
+  "description": "",
+  "scripts": {},
+  "author": "Łukasz Sentkiewicz <lukasz@sentkiewicz.pl>",
+  "license": "UNLICENSED",
+  "devDependencies": {}
+}
