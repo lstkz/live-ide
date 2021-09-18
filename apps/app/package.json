@@ -5,7 +5,7 @@
     "start": "ts-node -T --project ./node.tsconfig.json scripts/start",
     "start:test": "E2E_TESTS=1 yarn run dev",
     "dev": "ts-node -T --project ./node.tsconfig.json scripts/dev",
-    "build": "rm -rf ./next && ts-node -T --project ./node.tsconfig.json scripts/build",
+    "build": "ts-node -T --project ./node.tsconfig.json scripts/build",
     "test": "yarn run lint && yarn run tsc",
     "lint": "eslint . --ext .ts"
   },
