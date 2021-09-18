@@ -91,3 +91,30 @@ Array [
 ]
 `);
 });
+
+it('should should create custom index.d.ts from package.json and guess typings', async () => {
+  writeFileMap(baseSourceDir, {
+    'react/package.json': {
+      name: 'react',
+      version: '1.0.0',
+      module: 'dist/index.js',
+    },
+    'react/dist/index.d.ts': `
+      export const foo = 1;
+      `,
+  });
+  expect(await _getOutput()).toMatchInlineSnapshot(`
+Array [
+  Object {
+    "bundle": Object {
+      "dist/index.d.ts": "
+      export const foo = 1;
+      ",
+      "index.d.ts": "export * from './dist/index';
+",
+    },
+    "name": "react",
+  },
+]
+`);
+});

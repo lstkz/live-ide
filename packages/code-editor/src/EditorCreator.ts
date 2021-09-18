@@ -54,7 +54,8 @@ export class EditorCreator {
       this.editorStateService,
       this.bundlerService,
       this.modelCollection,
-      this.collaborationSocket
+      this.collaborationSocket,
+      this.browserPreviewService
     );
     this.editorFactory = new EditorFactory();
   }

@@ -1,8 +1,9 @@
 import * as R from 'remeda';
-import { doFn } from '../lib/helper';
+import { compareLibs, doFn, getLibs } from '../lib/helper';
 import { ModelState, ModelStateUpdater } from '../lib/ModelState';
 import { FileTreeHelper, findFileByPath } from '../lib/tree';
 import { TypedEventEmitter } from '../lib/TypedEventEmitter';
+import { BrowserPreviewService } from '../services/BrowserPreviewService';
 import { BundlerService } from '../services/BundlerService';
 import { EditorStateService } from '../services/EditorStateService';
 import {
@@ -27,13 +28,13 @@ function getDefaultState(): WorkspaceState {
   };
 }
 
-const TODO_INPUT_FILE = './index.tsx';
-
 export class WorkspaceModel {
   private modelState: ModelState<WorkspaceState> = null!;
   private options: InitWorkspaceOptions = null!;
-  private libraryUrl: string = null!;
   private hasAttachedEvents = false;
+  private lastInputFile: string | null = null;
+  private libraries: string[] = [];
+  private updateLibrariesId = 1;
 
   constructor(
     private codeEditorModel: CodeEditorModel,
@@ -42,13 +43,15 @@ export class WorkspaceModel {
     private editorStateService: EditorStateService,
     private bundlerService: BundlerService,
     private modelCollection: ModelCollection,
-    private collaborationSocket: ICollaborationSocket
+    private collaborationSocket: ICollaborationSocket,
+    private browserPreviewService: BrowserPreviewService
   ) {
     this.modelState = new ModelState(getDefaultState(), 'WorkspaceModel');
   }
 
   async init(options: InitWorkspaceOptions) {
     this.options = options;
+    this.libraries = [...options.libraries];
     const { defaultOpenFiles, nodes } = options;
     const tabsState = this.editorStateService.loadTabsState();
     const nodeMap = R.indexBy(nodes, x => x.id);
@@ -61,6 +64,7 @@ export class WorkspaceModel {
       const tree = pathHelper.buildRecTree();
       const tabs = defaultOpenFiles
         .map(path => findFileByPath(tree, path))
+        .filter(node => node)
         .map(node => ({
           id: node.id,
           name: node.name,
@@ -91,8 +95,37 @@ export class WorkspaceModel {
     if (tabsState.activeTabId) {
       this.modelCollection.openFile(tabsState.activeTabId);
     }
+    await this.modelCollection.addLibBundles(options.typesBundles);
+    this.browserPreviewService.setLibraries(options.sourceBundles);
     this.attachEvents();
     this.loadCode();
+  }
+
+  private getInputFile() {
+    const pkg = this.state.nodes.find(
+      x => x.name === 'package.json' && !x.parentId
+    );
+    if (pkg && pkg.type === 'file') {
+      try {
+        const json = JSON.parse(
+          this.modelCollection.getFileContent(pkg.id) ?? ''
+        );
+        if (json.main) {
+          this.lastInputFile = json.main;
+        }
+      } catch (ignore) {
+        //
+      }
+    }
+    return this.lastInputFile || './index.tsx';
+  }
+
+  private isMainPackageJson(id: string) {
+    return (
+      this.state.nodes.find(
+        x => x.name === 'package.json' && !x.parentId && x.id === id
+      ) != null
+    );
   }
 
   public getModelState() {
@@ -261,6 +294,9 @@ export class WorkspaceModel {
         content,
       });
       this.loadCode();
+      if (this.isMainPackageJson(fileId)) {
+        void this.checkDependencies(content);
+      }
     });
     this.emitter.addEventListener('opened', ({ fileId }) => {
       this.openTab(fileId);
@@ -352,8 +388,7 @@ export class WorkspaceModel {
   private getLoadCodeOptions() {
     return {
       fileMap: this.modelCollection.getFileMap(),
-      inputFile: TODO_INPUT_FILE,
-      libraryUrl: this.libraryUrl,
+      inputFile: this.getInputFile(),
     };
   }
 
@@ -363,5 +398,46 @@ export class WorkspaceModel {
       activeTabId,
       tabs,
     });
+  }
+
+  private async checkDependencies(content: string) {
+    let pkg;
+    try {
+      pkg = JSON.parse(content);
+    } catch (e) {
+      return;
+    }
+    const newLibs = getLibs(pkg);
+    if (!newLibs) {
+      return;
+    }
+    if (!compareLibs(newLibs, this.libraries)) {
+      return;
+    }
+    const id = ++this.updateLibrariesId;
+    const isOld = () => id !== this.updateLibrariesId;
+    setTimeout(async () => {
+      if (isOld()) {
+        return;
+      }
+      this.options.showAlert?.('Resolving libraries');
+      try {
+        const ret = await this.apiService.updateLibraries(newLibs);
+        if (isOld()) {
+          return;
+        }
+        this.libraries = newLibs;
+        await this.modelCollection.addLibBundles(ret.typesBundles);
+        this.browserPreviewService.setLibraries(ret.sourceBundles);
+        this.loadCode();
+      } catch (e) {
+        if (isOld()) {
+          return;
+        }
+        this.options.showError?.(e);
+      } finally {
+        this.options.showAlert?.(null);
+      }
+    }, 500);
   }
 }

@@ -20,6 +20,7 @@ import {
 } from 'shared';
 import { MonacoLoader } from './MonacoLoader';
 import { CollaborationSocket } from '../CollaborationSocket';
+import { useErrorModalActions } from 'src/features/ErrorModalModule';
 
 interface Actions {
   load: (container: HTMLDivElement) => void;
@@ -30,6 +31,7 @@ interface State {
   isLoaded: boolean;
   isSubmitting: boolean;
   workspace: Workspace;
+  alert?: string | null;
 }
 
 interface FinalState extends State {
@@ -108,6 +110,7 @@ export const EditorModule = React.forwardRef<
       isLoaded: false,
       isSubmitting: false,
       workspace: props.workspace,
+      alert: '',
     },
     'EditorModule'
   );
@@ -139,14 +142,24 @@ export const EditorModule = React.forwardRef<
       loadedDefer.resolve();
     }
   }, [state.isLoaded]);
+  const { showError } = useErrorModalActions();
 
   const initWorkspace = (workspace: Workspace) => {
     return workspaceModel.init({
-      defaultOpenFiles: ['./App.tsx'],
+      defaultOpenFiles: ['./App.tsx', './App.jsx'],
       nodes: mapWorkspaceNodes(workspace.id, workspace.items),
       workspaceId: workspace.id,
       sourceBundles: workspace.sourceBundles,
       typesBundles: workspace.typesBundles,
+      libraries: workspace.libraries,
+      showAlert: (msg: string | null) => {
+        setState(draft => {
+          draft.alert = msg;
+        });
+      },
+      showError: error => {
+        showError(error, true);
+      },
     });
   };
 
@@ -161,13 +174,7 @@ export const EditorModule = React.forwardRef<
       editorFactory.init(monaco, container);
       themeService.init();
       creator.init(monaco, editorFactory.create());
-      await Promise.all(
-        workspace.typesBundles.map(bundle =>
-          creator.modelCollection.addLibBundle(bundle.name, bundle.url)
-        )
-      );
       await browserPreviewService.waitForLoad();
-      browserPreviewService.setLibraries(workspace.sourceBundles);
       await initWorkspace(workspace);
       setState(draft => {
         draft.isLoaded = true;

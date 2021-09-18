@@ -3,7 +3,13 @@ import Path from 'path';
 import tmp from 'tmp';
 import fs from 'fs';
 import { ExtractedBundle } from './types';
-import { getDirectories, getEntryTypes, getHash, walk } from './utils';
+import {
+  getDirectories,
+  getEntryTypes,
+  getHash,
+  guessTypingEntry,
+  walk,
+} from './utils';
 
 export class TypesBundler {
   private dir: tmp.DirResult;
@@ -46,7 +52,8 @@ export class TypesBundler {
           .filter(file => file.endsWith('.json'))
           .forEach(file => {
             const subPkg = JSON.parse(fs.readFileSync(file, 'utf8'));
-            let entryTypes = getEntryTypes(subPkg);
+            let entryTypes =
+              getEntryTypes(subPkg) || guessTypingEntry(file, subPkg);
             if (!entryTypes) {
               return;
             }

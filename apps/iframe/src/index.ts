@@ -66,21 +66,28 @@ window.addEventListener('message', e => {
         document.body.append(root);
       }
       const head = document.head;
-      if (!head.querySelector('#__importmap')) {
-        const importScript = document.createElement('script');
+
+      const importMapHtml = JSON.stringify(
+        {
+          imports: importMap,
+        },
+        null,
+        2
+      );
+      let importScript = head.querySelector('#__importmap');
+      if (!importScript) {
+        importScript = document.createElement('script');
         importScript.setAttribute(
           'type',
           USE_SHIM ? 'importmap-shim' : 'importmap'
         );
         importScript.setAttribute('id', '__importmap');
-        importScript.innerHTML = JSON.stringify(
-          {
-            imports: importMap,
-          },
-          null,
-          2
-        );
+        importScript.innerHTML = importMapHtml;
         head.append(importScript);
+      } else {
+        if (importScript.innerHTML !== importMapHtml) {
+          location.reload();
+        }
       }
       head.querySelector('#__app')?.remove();
       const script = document.createElement('script');

@@ -43,6 +43,11 @@ async function start() {
     name: 'React (Typescript)',
     files: _getFileMap('react-ts'),
   });
+  await api.template_createTemplate({
+    id: 'react-js',
+    name: 'React',
+    files: _getFileMap('react-js'),
+  });
 }
 
 void start();

@@ -1,6 +1,7 @@
 import React from 'react';
+import { SpinnerBoarder } from 'src/components/SpinnerBoarder';
 import { styled } from 'twin.macro';
-import { useEditorActions } from './EditorModule';
+import { useEditorActions, useEditorState } from './EditorModule';
 
 const Wrapper = styled.div`
   .view-line {
@@ -45,6 +46,7 @@ export function EditorWrapper(props: EditorWrapperProps) {
   const { ideNode } = props;
   const wrapperRef = React.useRef<HTMLDivElement>(null!);
   const { load } = useEditorActions();
+  const { alert } = useEditorState();
 
   React.useEffect(() => {
     if (!ideNode) {
@@ -53,5 +55,20 @@ export function EditorWrapper(props: EditorWrapperProps) {
     wrapperRef.current.append(ideNode);
     load(ideNode);
   }, [ideNode]);
-  return <Wrapper ref={wrapperRef} style={{ height: '100%' }}></Wrapper>;
+  return (
+    <div tw="relative" style={{ height: '100%' }}>
+      {alert && (
+        <div
+          className="transform -translate-x-1/2"
+          tw="rounded-md bg-blue-50 p-1 w-60 absolute z-20 left-1/2 top-0 "
+        >
+          <div tw="flex space-x-3 items-center justify-center ">
+            <SpinnerBoarder size="sm" />
+            <div tw="text-sm text-gray-700">{alert}</div>
+          </div>
+        </div>
+      )}
+      <Wrapper ref={wrapperRef} style={{ height: '100%' }}></Wrapper>
+    </div>
+  );
 }

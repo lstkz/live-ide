@@ -108,3 +108,13 @@ export function getDirectories(path: string) {
       };
     });
 }
+
+export function guessTypingEntry(pkgPath: string, pkg: any) {
+  if (pkg.module) {
+    const types = pkg.module.replace('.js', '.d.ts');
+    if (fs.existsSync(Path.join(Path.dirname(pkgPath), types))) {
+      return types;
+    }
+  }
+  return null;
+}

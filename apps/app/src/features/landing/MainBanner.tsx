@@ -19,15 +19,16 @@ export function MainBanner() {
                   with collaboration
                 </span>
               </h1>
-              <p tw="text-base text-gray-300 sm:text-xl lg:text-lg xl:text-xl">
+              <div tw="text-base text-gray-300 sm:text-xl lg:text-lg xl:text-xl">
                 <ul tw="text-left lg:list-disc">
                   <li>No registration required.</li>
                   <li>Share IDE by copying the link.</li>
                   <li>Live Preview.</li>
                   <li>VSCode in the browser.</li>
+                  <li>Add any NPM dependency.</li>
                   <li>Free & Open-Source.</li>
                 </ul>
-              </p>
+              </div>
               <div tw="flex items-center justify-center pt-4">
                 <GitHubButton />
               </div>

@@ -108,7 +108,6 @@ export interface BundlerAction {
   payload: {
     input: string;
     modules: Record<string, SourceCode>;
-    libraryUrl: string;
     version: number;
   };
 }
@@ -160,6 +159,11 @@ export interface IAPIService {
     order: number,
     changes: CodeChange[]
   ): Promise<void>;
+  updateLibraries(libraries: string[]): Promise<{
+    libraries: string[];
+    sourceBundles: Bundle[];
+    typesBundles: Bundle[];
+  }>;
 }
 
 export interface InitWorkspaceOptions {
@@ -168,6 +172,9 @@ export interface InitWorkspaceOptions {
   nodes: TreeNode[];
   sourceBundles: Bundle[];
   typesBundles: Bundle[];
+  libraries: string[];
+  showAlert?: (msg: string | null) => void;
+  showError?: (error: string | Error) => void;
 }
 
 export interface InitReadOnlyWorkspaceOptions {

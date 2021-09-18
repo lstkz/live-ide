@@ -76,9 +76,6 @@ export class APIClient {
   workspace_getWorkspace(id: string): Promise<Workspace> {
     return this.call('workspace.getWorkspace', { id });
   }
-  workspace_resolve(libraries: string[]): Promise<{ url: string }> {
-    return this.call('workspace.resolve', { libraries });
-  }
   workspace_updateCursor(values: {
     identityId: string;
     workspaceId: string;
@@ -86,6 +83,12 @@ export class APIClient {
     cursor: ParticipantCursor | null;
   }): Promise<void> {
     return this.call('workspace.updateCursor', { values });
+  }
+  workspace_updateLibraries(
+    id: string,
+    libraries: string[]
+  ): Promise<Workspace> {
+    return this.call('workspace.updateLibraries', { id, libraries });
   }
   workspace_updateSelection(values: {
     identityId: string;

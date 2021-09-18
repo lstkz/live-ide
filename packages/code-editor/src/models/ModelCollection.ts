@@ -11,6 +11,7 @@ import {
   SelectionUpdatedData,
 } from '../types';
 import { HighlighterService } from '../services/HighlighterService';
+import { Bundle } from 'shared';
 
 interface EditorFile {
   id: string;
@@ -102,6 +103,16 @@ export class ModelCollection {
       );
       this.libs.push(lib);
     });
+  }
+
+  async addLibBundles(bundles: Bundle[]) {
+    this.libs.forEach(lib => {
+      lib.dispose();
+    });
+    this.libs = [];
+    await Promise.all(
+      bundles.map(bundle => this.addLibBundle(bundle.name, bundle.url))
+    );
   }
 
   async addLibraryUrl(libraryUrl: string) {
@@ -201,6 +212,11 @@ export class ModelCollection {
       };
     });
     return map;
+  }
+
+  getFileContent(id: string) {
+    const node = this.codeModels.find(x => x.id === id);
+    return node ? node.committedText : null;
   }
 
   revertDirty(id: string) {

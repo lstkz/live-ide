@@ -95,4 +95,8 @@ export class APIService implements IAPIService {
       changes,
     });
   }
+
+  async updateLibraries(libraries: string[]) {
+    return await api.workspace_updateLibraries(this.workspaceId, libraries);
+  }
 }
