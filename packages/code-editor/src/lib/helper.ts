@@ -5,7 +5,7 @@ export function doFn<T>(fn: () => T): T {
 
 export function compareLibs(list1: string[], list2: string[]) {
   return (
-    R.difference(list1, list2).length + R.difference(list1, list2).length > 0
+    R.difference(list1, list2).length + R.difference(list2, list1).length > 0
   );
 }
 
