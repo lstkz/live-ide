@@ -20,7 +20,7 @@ export default class MyDocument extends Document {
         ...initialProps,
         styles: (
           <>
-            <title>Learn to Code - for Free | practice.dev</title>
+            <title>LiveIDE</title>
             <link rel="shortcut icon" href="/favicon.png" />
             <link
               rel="stylesheet"
