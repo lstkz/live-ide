@@ -171,19 +171,19 @@ function createBucketCDN() {
   return { mainBucket, distribution };
 }
 
-function createBucketRole(mainBucket: aws.s3.Bucket) {
-  const role = new aws.iam.Role('bucket-role', {
+export function createEC2Role(mainBucket: aws.s3.Bucket) {
+  const role = new aws.iam.Role('lv-ec2-role', {
     assumeRolePolicy: {
       Version: '2012-10-17',
-      Statement: aws.getCallerIdentity({}).then(x => [
+      Statement: [
         {
           Principal: {
-            AWS: `arn:aws:iam::${x.accountId}:root`,
+            Service: 'ec2.amazonaws.com',
           },
           Action: 'sts:AssumeRole',
           Effect: 'Allow',
         },
-      ]),
+      ],
     },
     inlinePolicies: [
       {
@@ -201,13 +201,45 @@ function createBucketRole(mainBucket: aws.s3.Bucket) {
           })
         ),
       },
+      {
+        name: 'p2',
+        policy: JSON.stringify({
+          Version: '2012-10-17',
+          Statement: [
+            {
+              Resource: '*',
+              Action: ['sts:*'],
+              Effect: 'Allow',
+            },
+          ],
+        }),
+      },
+      {
+        name: 'p3',
+        policy: JSON.stringify({
+          Version: '2012-10-17',
+          Statement: [
+            {
+              Resource: '*',
+              Action: ['lambda:InvokeFunction'],
+              Effect: 'Allow',
+            },
+          ],
+        }),
+      },
     ],
   });
-  return role.arn;
+
+  const profile = new aws.iam.InstanceProfile('lv-ec2-profile', {
+    role,
+  });
+  return { profile, role };
 }
 
 const { distribution, mainBucket } = createBucketCDN();
-export const bucketRoleArn = createBucketRole(mainBucket);
+const { role, profile } = createEC2Role(mainBucket);
 
+export const ec2RoleArn = role.arn;
+export const ec2Profile = profile.arn;
 export const bucketName = mainBucket.bucket;
 export const cdnDomain = distribution.domainName;

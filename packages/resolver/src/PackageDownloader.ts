@@ -2,7 +2,6 @@ import tmp from 'tmp';
 import tar from 'tar';
 import Path from 'path';
 import fs from 'fs';
-import mv from 'mv';
 import { fetchNpmTar } from './npm';
 
 interface DownloadPackageData {
@@ -36,17 +35,10 @@ export class PackageDownloader {
     const content = fs.readdirSync(cwd);
     if (content.length === 1) {
       const wrappedPath = Path.join(cwd, content[0]);
-      await new Promise<void>((resolve, reject) =>
-        mv(
-          wrappedPath,
-          cwd,
-          {
-            mkdirp: false,
-            clobber: false,
-          },
-          err => (err ? reject(err) : resolve())
-        )
-      );
+      const tmpPath = tmp.dirSync();
+      fs.renameSync(wrappedPath, tmpPath.name);
+      fs.renameSync(tmpPath.name, cwd);
+      tmpPath.removeCallback();
     }
   }
 
