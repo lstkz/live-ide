@@ -21,7 +21,6 @@ export interface AppConfig {
   aws: {
     region: string;
     s3Bucket: string;
-    bucketRoleArn: string;
   };
   api: {
     port: number;

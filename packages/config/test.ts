@@ -33,30 +33,15 @@ export const config: AppConfig = {
   },
   web: {
     port: 4000,
+    useCDN: false,
   },
   bugsnag: {
     apiKey: -1,
-    workerKey: -1,
     frontKey: -1,
-  },
-  mixpanel: {
-    apiKey: -1,
   },
   github: {
     clientId: 'mocked',
     clientSecret: 'mocked',
   },
-  google: {
-    clientId: 'mocked',
-    clientSecret: 'mocked',
-  },
-  mailjet: {
-    privateKey: 'privateKey',
-    publicKey: 'publicKey',
-    senderEmail: 'sender@example.org',
-    senderName: 'name',
-    templates: {
-      actionButton: 123,
-    },
-  },
+  deploy: null!,
 };
